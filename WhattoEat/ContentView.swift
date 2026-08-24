@@ -1729,16 +1729,10 @@ private struct ReferenceRestaurantResults: View {
                             Button {
                                 openURL(url)
                             } label: {
-                                HStack(spacing: 4) {
-                                    Image(systemName: "phone.fill")
-                                    Text("전화걸기")
-                                        .lineLimit(1)
-                                        .minimumScaleFactor(0.75)
-                                }
-                                    .padding(.horizontal, 6)
-                                    .frame(maxWidth: .infinity)
-                                    .frame(minHeight: 36)
-                                    .background(Capsule().fill(Color.ivory).overlay(Capsule().stroke(Color.canvasLine)))
+                                Image(systemName: "phone.fill")
+                                    .frame(width: 36, height: 36)
+                                    .background(Circle().fill(Color.ivory))
+                                    .overlay(Circle().stroke(Color.canvasLine))
                             }
                             .buttonStyle(.plain)
                             .accessibilityLabel("\(decision.restaurant.name)에 전화걸기")
