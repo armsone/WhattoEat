@@ -563,6 +563,13 @@ struct ContentView: View {
                 }.prefix(13))
                 let selected = pool.shuffled()
                 phase = .results(selected)
+                if selected.contains(where: { $0.photoURL == nil }) {
+                    Task {
+                        await refreshRestaurantPhotos(latitude: latitude,
+                                                      longitude: longitude,
+                                                      token: token)
+                    }
+                }
                 if let regionForHistory {
                     store.recordRegionSelection(regionForHistory,
                                                 latitude: latitude,
@@ -574,6 +581,34 @@ struct ContentView: View {
         } catch {
             guard token == loadToken else { return }
             phase = .failed(error.localizedDescription)
+        }
+    }
+
+    /// 첫 응답이 사진 보강 시간 제한에 걸렸을 때 식당 순서는 유지하고 사진 정보만 갱신한다.
+    @MainActor
+    private func refreshRestaurantPhotos(latitude: Double, longitude: Double, token: UUID) async {
+        for delay in [900_000_000, 1_800_000_000] as [UInt64] {
+            try? await Task.sleep(nanoseconds: delay)
+            guard token == loadToken,
+                  case .results(let current) = phase,
+                  current.contains(where: { $0.photoURL == nil }) else { return }
+
+            guard let response = try? await APIClient.fetchRestaurants(latitude: latitude,
+                                                                        longitude: longitude),
+                  token == loadToken else { continue }
+            let refreshedByID = Dictionary(uniqueKeysWithValues: response.restaurants.map { ($0.id, $0) })
+            let refreshed = current.map { restaurant in
+                guard let latest = refreshedByID[restaurant.id], latest.photoURL != nil else { return restaurant }
+                return latest
+            }
+            guard refreshed != current else { continue }
+            phase = .results(refreshed)
+
+            if let currentDecision = decision,
+               let latest = refreshedByID[currentDecision.restaurant.id],
+               latest.photoURL != nil {
+                decision = Decision(menu: currentDecision.menu, restaurant: latest)
+            }
         }
     }
 
@@ -688,7 +723,7 @@ private struct LocationChoicePanel: View {
             )
             ReferenceChoiceCard(
                 systemName: "magnifyingglass",
-                title: "지역 지정",
+                title: "지역 선택",
                 subtitle: "직접 지역 선택",
                 highlighted: false,
                 action: onManual
@@ -912,7 +947,9 @@ private final class RestaurantImageLoader: ObservableObject {
         }
         let isFoursquare = provider?.lowercased() == "foursquare"
         if !isFoursquare, let cached = Self.memoryCache.object(forKey: url as NSURL) {
-            state = .loaded(cached)
+            withAnimation(.easeOut(duration: 0.18)) {
+                state = .loaded(cached)
+            }
             return
         }
         var request = URLRequest(url: url)
@@ -921,7 +958,9 @@ private final class RestaurantImageLoader: ObservableObject {
         if !isFoursquare, let cached = URLCache.shared.cachedResponse(for: request),
            let image = UIImage(data: cached.data) {
             Self.memoryCache.setObject(image, forKey: url as NSURL)
-            state = .loaded(image)
+            withAnimation(.easeOut(duration: 0.18)) {
+                state = .loaded(image)
+            }
             return
         }
         state = .loading
@@ -938,7 +977,9 @@ private final class RestaurantImageLoader: ObservableObject {
                 Self.memoryCache.setObject(image, forKey: url as NSURL)
                 URLCache.shared.storeCachedResponse(CachedURLResponse(response: response, data: data), for: request)
             }
-            state = .loaded(image)
+            withAnimation(.easeOut(duration: 0.18)) {
+                state = .loaded(image)
+            }
         } catch {
             guard !Task.isCancelled else { return }
             state = .failed
@@ -960,6 +1001,7 @@ private struct RestaurantImageView: View {
     let category: String
     let identity: String
     let menu: String?
+    let fallbackAsset: String?
     @StateObject private var loader = RestaurantImageLoader()
     @State private var showPhotoInformation = false
 
@@ -972,6 +1014,7 @@ private struct RestaurantImageView: View {
                 Image(uiImage: image)
                     .resizable()
                     .scaledToFill()
+                    .transition(.opacity)
             }
         }
         .accessibilityLabel(accessibilityImageLabel)
@@ -1036,22 +1079,68 @@ private struct RestaurantImageView: View {
 
     /// 서버 사진이 없을 때는 매장 사진으로 가장하지 않고, 메뉴·카테고리에 맞는 일반 음식 이미지를 쓴다.
     private var fallbackAssetName: String {
+        fallbackAsset ?? FallbackFoodAssets.pick(menu: menu,
+                                                 category: category,
+                                                 identity: identity,
+                                                 excluding: [])
+    }
+}
+
+private enum FallbackFoodAssets {
+    static let all = [
+        "FoodMain", "FoodBibimbap", "FoodSide1", "FoodSide2", "FoodSide3",
+        "FoodGrilledPork", "FoodJjamppong", "FoodNaengmyeon", "FoodSeafood",
+        "FoodChicken", "FoodTteokbokki", "FoodSushi", "FoodShabu", "FoodBrunch",
+    ]
+
+    static func pick(menu: String?, category: String, identity: String,
+                     excluding: Set<String>) -> String {
         let text = "\(menu ?? "") \(category)".lowercased()
-        if text.contains("파스타") || text.contains("피자") || text.contains("양식") { return "FoodSide1" }
-        if text.contains("국수") || text.contains("칼국수") || text.contains("국밥") || text.contains("탕") || text.contains("죽") {
-            return "FoodSide2"
+        let preferred: [String]
+        if contains(text, ["카페", "베이커리", "디저트", "브런치", "커피"]) {
+            preferred = ["FoodBrunch", "FoodSide1"]
+        } else if contains(text, ["파스타", "피자", "양식"]) {
+            preferred = ["FoodSide1", "FoodBrunch"]
+        } else if contains(text, ["짜장", "짬뽕", "탕수육", "중식", "중국요리"]) {
+            preferred = ["FoodJjamppong", "FoodSide2", "FoodTteokbokki"]
+        } else if contains(text, ["냉면", "막국수"]) {
+            preferred = ["FoodNaengmyeon", "FoodSide2"]
+        } else if contains(text, ["초밥", "스시", "일식"]) {
+            preferred = ["FoodSushi", "FoodSide3", "FoodSeafood"]
+        } else if contains(text, ["해물", "생선", "장어", "회", "수산"]) {
+            preferred = ["FoodSeafood", "FoodSushi", "FoodJjamppong"]
+        } else if contains(text, ["치킨", "닭", "백숙", "삼계탕"]) {
+            preferred = ["FoodChicken", "FoodMain", "FoodShabu"]
+        } else if contains(text, ["떡볶이", "김밥", "분식"]) {
+            preferred = ["FoodTteokbokki", "FoodBibimbap", "FoodSide2"]
+        } else if contains(text, ["샤브", "전골", "훠궈"]) {
+            preferred = ["FoodShabu", "FoodMain", "FoodSeafood"]
+        } else if contains(text, ["국수", "칼국수", "국밥", "탕", "찌개", "죽", "순대"]) {
+            preferred = ["FoodSide2", "FoodMain", "FoodJjamppong", "FoodShabu"]
+        } else if contains(text, ["돈가스", "돈까스"]) {
+            preferred = ["FoodSide3", "FoodGrilledPork"]
+        } else if contains(text, ["고기", "육류", "구이", "갈비", "삼겹살"]) {
+            preferred = ["FoodGrilledPork", "FoodMain", "FoodChicken", "FoodShabu"]
+        } else if contains(text, ["비빔밥"]) {
+            preferred = ["FoodBibimbap", "FoodMain", "FoodTteokbokki"]
+        } else if contains(text, ["한식", "한정식"]) {
+            preferred = ["FoodBibimbap", "FoodMain", "FoodGrilledPork", "FoodSeafood",
+                         "FoodTteokbokki", "FoodChicken", "FoodNaengmyeon", "FoodShabu"]
+        } else {
+            preferred = all
         }
-        if text.contains("초밥") || text.contains("돈가스") || text.contains("돈까스") || text.contains("일식") {
-            return "FoodSide3"
-        }
-        if text.contains("한식") || text.contains("비빔밥") || text.contains("고기") || text.contains("육류") {
-            return "FoodMain"
-        }
-        let assets = ["FoodMain", "FoodSide1", "FoodSide2", "FoodSide3"]
+
+        let candidates = preferred + all.filter { !preferred.contains($0) }
         let stable = identity.utf8.reduce(UInt64(14_695_981_039_346_656_037)) {
             ($0 ^ UInt64($1)) &* 1_099_511_628_211
         }
-        return assets[Int(stable % UInt64(assets.count))]
+        let start = Int(stable % UInt64(candidates.count))
+        let rotated = Array(candidates[start...]) + Array(candidates[..<start])
+        return rotated.first(where: { !excluding.contains($0) }) ?? candidates[start]
+    }
+
+    private static func contains(_ text: String, _ keywords: [String]) -> Bool {
+        keywords.contains { text.contains($0) }
     }
 }
 
@@ -1190,8 +1279,7 @@ private struct ReferenceBottomBar: View {
         .padding(.horizontal, 8)
         .padding(.top, 14)
         .padding(.bottom, 10)
-        .background(Color.ivory)
-        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .background(RoundedRectangle(cornerRadius: 22, style: .continuous).fill(Color.ivory))
         .overlay(RoundedRectangle(cornerRadius: 22).stroke(Color.canvasLine.opacity(0.7), lineWidth: 1))
         .padding(.horizontal, 28)
         .frame(maxWidth: 600)
@@ -1217,14 +1305,35 @@ private struct ReferenceBottomBar: View {
 
     private func rouletteItem() -> some View {
         Button(action: onRecommend) {
-            VStack(spacing: 4) {
-                Image(systemName: "die.face.5.fill")
-                    .font(.system(size: 21, weight: .semibold))
-                Text("추천").font(.system(size: 10, weight: .medium))
+            Color.clear
+                .frame(height: 38)
+                .overlay(alignment: .top) {
+                    VStack(spacing: 4) {
+                        ZStack {
+                            Circle()
+                                .fill(
+                                    LinearGradient(
+                                        colors: [Color(red: 0.96, green: 0.20, blue: 0.22), Color.accentRed],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+                                )
+                                .overlay(Circle().stroke(Color.white.opacity(0.88), lineWidth: 1.2))
+                                .shadow(color: Color.accentRed.opacity(0.28), radius: 5, y: 3)
+                            Image(systemName: "die.face.5.fill")
+                                .font(.system(size: 24, weight: .bold))
+                                .foregroundStyle(.white)
+                        }
+                        .frame(width: 52, height: 52)
+
+                        Text("추천")
+                            .font(.system(size: 10, weight: selected == .recommend ? .bold : .medium))
+                            .foregroundStyle(selected == .recommend ? Color.accentRed : Color.charcoalText)
+                    }
+                    .offset(y: -18)
+                }
+                .frame(maxWidth: .infinity)
             }
-            .foregroundStyle(selected == .recommend ? Color.accentRed : Color.charcoalText)
-            .frame(maxWidth: .infinity)
-        }
         .buttonStyle(.plain)
         .accessibilityLabel("추천 다시 고르기")
     }
@@ -1438,6 +1547,20 @@ private struct ReferenceRestaurantResults: View {
     let onPick: (Decision) -> Void
     let onRetry: () -> Void
 
+    private var fallbackAssets: [String] {
+        var used = Set<String>()
+        return restaurants.map { restaurant in
+            let menu = MenuPolicy.menus(for: restaurant).first
+                ?? restaurant.category.components(separatedBy: " > ").last
+            let asset = FallbackFoodAssets.pick(menu: menu,
+                                                category: restaurant.category,
+                                                identity: restaurant.id,
+                                                excluding: used)
+            used.insert(asset)
+            return asset
+        }
+    }
+
     var body: some View {
         GeometryReader { geometry in
             let contentWidth = max(0, geometry.size.width - 56)
@@ -1496,7 +1619,8 @@ private struct ReferenceRestaurantResults: View {
                                     photoTitle: decision.restaurant.photoTitle,
                                     category: decision.restaurant.category,
                                     identity: decision.restaurant.id,
-                                    menu: decision.menu)
+                                    menu: decision.menu,
+                                    fallbackAsset: fallbackAssets.first)
                     .frame(width: 158, height: 230)
                     .clipped()
 
@@ -1564,7 +1688,8 @@ private struct ReferenceRestaurantResults: View {
                                     photoTitle: decision.restaurant.photoTitle,
                                     category: decision.restaurant.category,
                                     identity: decision.restaurant.id,
-                                    menu: decision.menu)
+                                    menu: decision.menu,
+                                    fallbackAsset: fallbackAssets[index])
                     .frame(width: width, height: 105)
                     .clipped()
                 VStack(alignment: .leading, spacing: 7) {
@@ -1983,7 +2108,8 @@ struct DecisionView: View {
                                         photoTitle: decision.restaurant.photoTitle,
                                         category: decision.restaurant.category,
                                         identity: decision.restaurant.id,
-                                        menu: decision.menu)
+                                        menu: decision.menu,
+                                        fallbackAsset: nil)
                         .frame(width: 132, height: 136)
                         .clipped()
 
@@ -2665,7 +2791,8 @@ struct RecentMealsView: View {
                                 photoTitle: record.photoTitle,
                                 category: record.category ?? record.menu,
                                 identity: record.restaurantName,
-                                menu: record.menu)
+                                menu: record.menu,
+                                fallbackAsset: nil)
                 .frame(width: 82, height: 76)
                 .clipped()
             VStack(alignment: .leading, spacing: 4) {
@@ -2756,7 +2883,8 @@ struct FavoritesView: View {
                                 photoTitle: favorite.photoTitle,
                                 category: favorite.category,
                                 identity: favorite.id,
-                                menu: nil)
+                                menu: nil,
+                                fallbackAsset: nil)
                 .frame(width: 82, height: 76)
                 .clipped()
             VStack(alignment: .leading, spacing: 4) {
