@@ -1279,8 +1279,16 @@ private struct ReferenceBottomBar: View {
         .padding(.horizontal, 8)
         .padding(.top, 14)
         .padding(.bottom, 10)
-        .background(RoundedRectangle(cornerRadius: 22, style: .continuous).fill(Color.ivory))
-        .overlay(RoundedRectangle(cornerRadius: 22).stroke(Color.canvasLine.opacity(0.7), lineWidth: 1))
+        .background(alignment: .bottom) {
+            RaisedCenterNavigationShape()
+                .fill(Color.ivory)
+                .frame(height: 84)
+        }
+        .overlay(alignment: .bottom) {
+            RaisedCenterNavigationShape()
+                .stroke(Color.canvasLine.opacity(0.7), lineWidth: 1)
+                .frame(height: 84)
+        }
         .padding(.horizontal, 28)
         .frame(maxWidth: 600)
         .padding(.bottom, 12)
@@ -1305,10 +1313,11 @@ private struct ReferenceBottomBar: View {
 
     private func rouletteItem() -> some View {
         Button(action: onRecommend) {
-            Color.clear
-                .frame(height: 38)
-                .overlay(alignment: .top) {
-                    VStack(spacing: 4) {
+            VStack(spacing: 4) {
+                Image(systemName: "die.face.5.fill")
+                    .font(.system(size: 20, weight: .semibold))
+                    .hidden()
+                    .overlay {
                         ZStack {
                             Circle()
                                 .fill(
@@ -1324,18 +1333,77 @@ private struct ReferenceBottomBar: View {
                                 .font(.system(size: 24, weight: .bold))
                                 .foregroundStyle(.white)
                         }
-                        .frame(width: 52, height: 52)
-
-                        Text("추천")
-                            .font(.system(size: 10, weight: selected == .recommend ? .bold : .medium))
-                            .foregroundStyle(selected == .recommend ? Color.accentRed : Color.charcoalText)
+                        .frame(width: 45.36, height: 45.36)
+                        .offset(y: -14)
                     }
-                    .offset(y: -18)
-                }
-                .frame(maxWidth: .infinity)
+
+                Text("추천")
+                    .font(.system(size: 10, weight: selected == .recommend ? .bold : .medium))
+                    .foregroundStyle(selected == .recommend ? Color.accentRed : Color.charcoalText)
             }
+            .frame(maxWidth: .infinity)
+        }
         .buttonStyle(.plain)
         .accessibilityLabel("추천 다시 고르기")
+    }
+}
+
+/// 선택된 추천 버튼과 하단 바를 하나의 물성으로 연결하는 중앙 돌출형 표면.
+private struct RaisedCenterNavigationShape: Shape {
+    func path(in rect: CGRect) -> Path {
+        let radius: CGFloat = 22
+        let top: CGFloat = 20
+        let center = rect.midX
+        let shoulder: CGFloat = 44
+        let crown: CGFloat = 0
+        var path = Path()
+
+        path.move(to: CGPoint(x: radius, y: top))
+        path.addLine(to: CGPoint(x: center - shoulder, y: top))
+        path.addCurve(
+            to: CGPoint(x: center, y: crown),
+            control1: CGPoint(x: center - 32, y: top),
+            control2: CGPoint(x: center - 30, y: crown)
+        )
+        path.addCurve(
+            to: CGPoint(x: center + shoulder, y: top),
+            control1: CGPoint(x: center + 30, y: crown),
+            control2: CGPoint(x: center + 32, y: top)
+        )
+        path.addLine(to: CGPoint(x: rect.maxX - radius, y: top))
+        path.addArc(
+            center: CGPoint(x: rect.maxX - radius, y: top + radius),
+            radius: radius,
+            startAngle: .degrees(-90),
+            endAngle: .degrees(0),
+            clockwise: false
+        )
+        path.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY - radius))
+        path.addArc(
+            center: CGPoint(x: rect.maxX - radius, y: rect.maxY - radius),
+            radius: radius,
+            startAngle: .degrees(0),
+            endAngle: .degrees(90),
+            clockwise: false
+        )
+        path.addLine(to: CGPoint(x: radius, y: rect.maxY))
+        path.addArc(
+            center: CGPoint(x: radius, y: rect.maxY - radius),
+            radius: radius,
+            startAngle: .degrees(90),
+            endAngle: .degrees(180),
+            clockwise: false
+        )
+        path.addLine(to: CGPoint(x: 0, y: top + radius))
+        path.addArc(
+            center: CGPoint(x: radius, y: top + radius),
+            radius: radius,
+            startAngle: .degrees(180),
+            endAngle: .degrees(270),
+            clockwise: false
+        )
+        path.closeSubpath()
+        return path
     }
 }
 
