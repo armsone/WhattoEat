@@ -47,7 +47,7 @@ Android 1차 수용 범위는 휴대전화 portrait이다. 태블릿은 iPad처�
 | 4 | 최근 | `clock.arrow.circlepath` | 최근 한 끼 |
 | 5 | 찜 | `heart` | 찜한 맛집 |
 
-선택 탭은 `#E41E25`, 나머지는 `#2E3338`. 하단바는 HStack 5등분, horizontal 8, top 14, bottom 10, ivory 배경, continuous radius 22, `canvasLine` alpha .7 1pt stroke, 외부 horizontal 28, maxWidth 600, bottom 4. 콘텐츠는 bottom 72를 비운다. 키보드 bottom safe-area를 무시해 하단바가 키보드와 함께 올라오지 않는 것이 의도다 (`ContentView.swift:234-245`).
+하단바는 HStack 5등분, horizontal 8, top 14, bottom 10이며 중앙 추천 버튼이 돌출된 기존 실루엣을 유지한다. 표면은 위 가죽 추천판과 같은 `LeatherTexture`를 ImagePaint scale 0.8로 사용하고, 위에서 아래로 ivory alpha .12 → clear → `caramelDeep` alpha .16 음영을 겹친다. 외곽은 `caramelDeep` 1pt, 안쪽 2pt에는 `leatherLight` alpha .58의 0.8pt 하이라이트를 두며 바 전체에 `caramelDeep` alpha .22, radius 4, y 3 그림자를 준다. 아이콘·문자의 VStack과 추천 버튼 offset은 가죽 적용 전 좌표를 그대로 유지하며 선택 밑줄은 overlay로만 그려 레이아웃에 영향을 주지 않는다. 스티치는 위 가죽 추천판처럼 외곽에서 5pt만 안쪽으로 붙여 돌고 중앙 추천 버튼 위의 돌출된 가죽 테두리까지 한 줄로 이어진다. ivory alpha .72의 1.15pt 실 바로 뒤에 `caramelDeep` alpha .68의 2.5pt 홈을 y 0.55, blur 0.3으로 겹쳐 실제 바늘땀처럼 어두운 눌림이 실 가장자리로 드러나게 한다. 일반 탭은 선택 여부와 관계없이 ivory 아이콘·문자를 사용하고 선택 탭만 14×2.5pt `#E41E25` 밑줄로 표시한다. 중앙 추천 버튼은 미선택 시 ivory 표면과 red 주사위, 선택 시에만 red 표면과 white 주사위다. 외부 horizontal 28, maxWidth 600, bottom 12이며 콘텐츠는 bottom 72를 비운다. 키보드 bottom safe-area를 무시해 하단바가 키보드와 함께 올라오지 않는 것이 의도다.
 
 설정은 홈·지역·추천·최근·찜의 우측 상단 gear로 연다. `pageBeforeSettings`를 저장하고 닫으면 정확히 이전 화면으로 돌아간다. 결정 화면은 gear 없이 `닫기`만 있고 결과로 돌아간다. 별도 `NavigationStack`/back stack과 화면 전환 애니메이션은 없다. Android system Back은 decision→result, settings→이전 페이지로 맞추고, root tab에서 새 임의 stack을 만들지 말아야 한다. root 탭에서 Back 종료 정책은 미검증 제품 결정이다.
 
@@ -57,16 +57,15 @@ Android 1차 수용 범위는 휴대전화 portrait이다. 태블릿은 iPad처�
 
 요소 순서와 정확 문구 (`ContentView.swift:587-724,1136-1172`):
 
-1. `Wordmark` bitmap(접근성 `오늘 뭐 먹지`)과 우측 설정.
-2. `PinWell` 58×58 + `어디서 드실까요?`.
-3. `현재 위치를 기반으로 맛있는 점심을 추천해드려요!`.
-4. 카드 `자동 위치` / `현재 위치 사용`.
-5. 카드 `지역 지정` / `직접 지역 선택`.
-6. `LunchHero` 위 live text 버튼 `메뉴 추천 받기` + chevron.
+1. `Wordmark` bitmap(접근성 `오늘 뭐 먹지??`)과 우측 설정.
+2. `LunchHero` 위 live text 버튼 `메뉴 추천 받기` + chevron.
+3. `PinWell` 58×58 + `어디서 드실까요?`.
+4. 카드 `현 위치` / `현재 위치 사용`.
+5. 카드 `지역 선택` / `직접 지역 선택`.
 
 `자동 위치`: auto mode→결과 화면→`현 위치 확인 중…`→권한/현재 위치/식당 검색. `지역 지정`: manual mode→지역 화면. `메뉴 추천 받기`: manual 좌표가 없으면 지역 화면, 아니면 결과 검색. 홈의 auto 카드는 source상 항상 selectionMint로 강조되고 전달된 `mode`는 시각에 사용하지 않는다.
 
-레이아웃: leading VStack gap 34, horizontal 28, top 14, bottom 18. 카드 그룹 gap 14. 위치 카드 높이 76, HStack gap 16, inner horizontal 16, icon 50, radius 18, 1pt `canvasLine` alpha .8, shadow `caramelDeep` alpha .06 radius4 y2. `LunchHero` 400:300 비율, full rail. live 버튼은 표시 이미지 폭 46%, 높이 15%, x 8.25%, y 40.75%, radius는 이미지 폭의 7.5%, 글자 크기는 4% medium.
+레이아웃: leading VStack, horizontal 28, top 14, bottom 18. `LunchHero`는 제목 바로 아래에 400:300 비율 full rail로 놓는다. 안내 문구는 그 아래에 두고 위치 카드 두 개는 `LunchHero` 폭의 좌우 2.5%를 추가로 안쪽 여백으로 적용해 가죽판 내부 스티치 레일과 가로 경계를 맞춘다. 카드 그룹 gap 14. 위치 카드 높이 76, HStack gap 16, inner horizontal 16, icon 50, radius 18, 1pt `canvasLine` alpha .8, shadow `caramelDeep` alpha .06 radius4 y2. live 버튼은 표시 이미지 폭 46%, 높이 15%, x 8.25%, y 40.75%, radius는 이미지 폭의 7.5%, 글자 크기는 4% medium.
 
 ### 3.2 지역 선택
 

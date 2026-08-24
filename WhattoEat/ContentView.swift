@@ -120,6 +120,42 @@ enum LunchReminder {
 private enum AppPage { case home, region, result, decision, history, favorites, profile }
 private enum BottomDestination { case home, history, region, recommend, favorites }
 
+#if DEBUG
+/// Matchup 전용 결정론적 시작 상태. 일반 실행과 Release 빌드에는 영향이 없다.
+private enum MatchupLaunch {
+    static let state: String? = {
+        guard let index = ProcessInfo.processInfo.arguments.firstIndex(of: "-matchup-state"),
+              ProcessInfo.processInfo.arguments.indices.contains(index + 1) else { return nil }
+        return ProcessInfo.processInfo.arguments[index + 1]
+    }()
+
+    static let restaurants: [Restaurant] = [
+        fixture("matchup-1", "바람난김밥카페", "음식점 > 분식", 320, ["김밥"]),
+        fixture("matchup-2", "설월식당", "음식점 > 한식", 480, ["한식"]),
+        fixture("matchup-3", "동백벌", "음식점 > 한식", 640, ["불고기"]),
+        fixture("matchup-4", "다미정", "음식점 > 냉면", 790, ["냉면"]),
+        fixture("matchup-5", "백암토종순대국", "음식점 > 순대", 910, ["순대"]),
+    ]
+
+    static var decision: Decision {
+        Decision(menu: "김밥", restaurant: restaurants[0])
+    }
+
+    private static func fixture(_ id: String, _ name: String, _ category: String,
+                                _ distance: Int, _ menus: [String]) -> Restaurant {
+        Restaurant(id: id, name: name, category: category,
+                   latitude: 37.4, longitude: 127.3, distanceMeters: distance,
+                   address: "경기도 광주시 초월읍", roadAddress: nil, phone: nil,
+                   placeURL: nil, isOpenNow: nil, curatedMenus: menus,
+                   photoURL: nil, photoKind: nil, photoProvider: nil,
+                   photoSourceURL: nil, photoAttribution: nil,
+                   photoCreator: nil, photoCreatorURL: nil,
+                   photoLicense: nil, photoLicenseURL: nil,
+                   photoTitle: nil, photoMatchEvidence: nil)
+    }
+}
+#endif
+
 struct ContentView: View {
     @StateObject private var locationManager = LocationManager()
     @StateObject private var store = ChoiceStore()
@@ -147,6 +183,38 @@ struct ContentView: View {
     @AppStorage("lunchHour") private var lunchHour = 12
     @AppStorage("lunchMinute") private var lunchMinute = 0
     @AppStorage("lunchLeadMinutes") private var lunchLeadMinutes = 5
+
+    init() {
+#if DEBUG
+        switch MatchupLaunch.state {
+        case "region", "region-search":
+            _page = State(initialValue: .region)
+            _autoRegionName = State(initialValue: "경기도 광주시 초월읍")
+            _autoLocationStatus = State(initialValue: "현 위치를 확인했어요")
+            _nearbyRegions = State(initialValue: ["초월읍", "곤지암읍", "경안동"])
+        case "loading":
+            _page = State(initialValue: .result)
+            _phase = State(initialValue: .loading)
+            _autoRegionName = State(initialValue: "경기도 광주시 초월읍")
+        case "results":
+            _page = State(initialValue: .result)
+            _phase = State(initialValue: .results(MatchupLaunch.restaurants))
+            _autoRegionName = State(initialValue: "경기도 광주시 초월읍")
+        case "decision", "decision-recorded":
+            _page = State(initialValue: .decision)
+            _decision = State(initialValue: MatchupLaunch.decision)
+            _autoRegionName = State(initialValue: "경기도 광주시 초월읍")
+        case "history-empty", "history-populated":
+            _page = State(initialValue: .history)
+        case "favorites-empty", "favorites-populated":
+            _page = State(initialValue: .favorites)
+        case "settings":
+            _page = State(initialValue: .profile)
+        default:
+            break
+        }
+#endif
+    }
 
     private var mode: LocationMode { LocationMode(rawValue: locationModeRaw) ?? .auto }
     private var hasManualCoordinate: Bool { manualLatitude != 0 || manualLongitude != 0 }
@@ -263,6 +331,9 @@ struct ContentView: View {
             // 시안의 첫 진입 상태와 동일하게 자동 위치를 기본 선택으로 보여 준다.
             locationModeRaw = LocationMode.auto.rawValue
             regionQuery = manualRegionText
+#if DEBUG
+            applyMatchupFixtureIfNeeded()
+#endif
         }
         .onChange(of: locationManager.authorization) { _, newValue in
             guard mode == .auto, page == .result || page == .region else { return }
@@ -311,6 +382,9 @@ struct ContentView: View {
         }
         .onChange(of: scenePhase) { _, newValue in
             // 알림 탭 등으로 앱이 다시 열리면 현재 모드 기준으로 결과를 새로 고친다.
+#if DEBUG
+            guard MatchupLaunch.state == nil else { return }
+#endif
             guard newValue == .active else { return }
             guard page == .result else { return }
             switch phase {
@@ -319,6 +393,30 @@ struct ContentView: View {
             }
         }
     }
+
+#if DEBUG
+    private func applyMatchupFixtureIfNeeded() {
+        switch MatchupLaunch.state {
+        case "region-search":
+            DispatchQueue.main.async { regionSearchFocused = true }
+        case "history-populated", "decision-recorded":
+            if store.records.isEmpty {
+                let item = MatchupLaunch.decision
+                store.record(menu: item.menu, restaurantName: item.restaurant.name,
+                             regionName: "경기도 광주시 초월읍", imageName: "FoodKorean",
+                             category: item.restaurant.category)
+            }
+        case "favorites-populated":
+            let restaurant = MatchupLaunch.restaurants[0]
+            if !store.isFavorite(restaurant.id) {
+                store.toggleFavorite(restaurant, regionName: "경기도 광주시 초월읍",
+                                     imageName: "FoodKorean")
+            }
+        default:
+            break
+        }
+    }
+#endif
 
     private var selectedBottomDestination: BottomDestination {
         switch page {
@@ -653,8 +751,9 @@ private struct ReferenceHomeScreen: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 0) {
+            GeometryReader { proxy in
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 0) {
                     HStack {
                         HStack(spacing: -12) {
                             Image("Wordmark")
@@ -677,6 +776,9 @@ private struct ReferenceHomeScreen: View {
                     }
                     .padding(.bottom, 24)
 
+                    LeatherHeroCard(action: onRecommend)
+                        .padding(.bottom, 20)
+
                     VStack(alignment: .leading, spacing: 14) {
                         HStack(spacing: 16) {
                             ExactWell(name: "PinWell", diameter: 58)
@@ -686,14 +788,16 @@ private struct ReferenceHomeScreen: View {
                     }
                     .padding(.bottom, 20)
 
-                    LeatherHeroCard(action: onRecommend)
-                        .padding(.bottom, 20)
-
                     LocationChoicePanel(onAuto: onAuto, onManual: onManual)
+                        .padding(
+                            .horizontal,
+                            max(0, proxy.size.width - 56) * LeatherHeroCard.stitchRailInsetFraction
+                        )
+                    }
+                    .padding(.horizontal, 28)
+                    .padding(.top, 14)
+                    .padding(.bottom, 18)
                 }
-                .padding(.horizontal, 28)
-                .padding(.top, 14)
-                .padding(.bottom, 18)
             }
         }
     }
@@ -1240,6 +1344,8 @@ private struct PhotoInformationSheet: View {
 private struct LeatherHeroCard: View {
     let action: () -> Void
 
+    static let stitchRailInsetFraction: CGFloat = 0.025
+
     var body: some View {
         Button(action: action) {
             Image("LunchHero")
@@ -1297,12 +1403,45 @@ private struct ReferenceBottomBar: View {
         .padding(.bottom, 10)
         .background(alignment: .bottom) {
             RaisedCenterNavigationShape()
-                .fill(Color.ivory)
+                .fill(
+                    ImagePaint(image: Image("LeatherTexture"), scale: 0.8)
+                )
+                .overlay(
+                    RaisedCenterNavigationShape()
+                        .fill(
+                            LinearGradient(
+                                colors: [Color.ivory.opacity(0.12), .clear, Color.caramelDeep.opacity(0.16)],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        )
+                )
+                .overlay(
+                    RaisedCenterNavigationShape(inset: 2)
+                        .stroke(Color.leatherLight.opacity(0.58), lineWidth: 0.8)
+                )
+                .overlay(
+                    RaisedCenterNavigationShape(inset: 5)
+                        .stroke(
+                            Color.caramelDeep.opacity(0.68),
+                            style: StrokeStyle(lineWidth: 2.5, lineCap: .round, dash: [4, 4])
+                        )
+                        .offset(y: 0.55)
+                        .blur(radius: 0.3)
+                )
+                .overlay(
+                    RaisedCenterNavigationShape(inset: 5)
+                        .stroke(
+                            Color.ivory.opacity(0.72),
+                            style: StrokeStyle(lineWidth: 1.15, lineCap: .round, dash: [4, 4])
+                        )
+                )
                 .frame(height: 84)
+                .shadow(color: Color.caramelDeep.opacity(0.22), radius: 4, y: 3)
         }
         .overlay(alignment: .bottom) {
             RaisedCenterNavigationShape()
-                .stroke(Color.canvasLine.opacity(0.7), lineWidth: 1)
+                .stroke(Color.caramelDeep.opacity(0.8), lineWidth: 1)
                 .frame(height: 84)
         }
         .padding(.horizontal, 28)
@@ -1316,19 +1455,29 @@ private struct ReferenceBottomBar: View {
         destination: BottomDestination,
         action: @escaping () -> Void
     ) -> some View {
-        Button(action: action) {
+        let isSelected = selected == destination
+        return Button(action: action) {
             VStack(spacing: 4) {
                 Image(systemName: icon).font(.system(size: 20, weight: .semibold))
-                Text(title).font(.system(size: 10, weight: .medium))
+                Text(title).font(.system(size: 10, weight: isSelected ? .semibold : .medium))
             }
-            .foregroundStyle(selected == destination ? Color.accentRed : Color.charcoalText)
+            .foregroundStyle(Color.ivory.opacity(isSelected ? 1 : 0.7))
             .frame(maxWidth: .infinity)
+            .overlay(alignment: .bottom) {
+                if isSelected {
+                    Capsule()
+                        .fill(Color.accentRed)
+                        .frame(width: 14, height: 2.5)
+                        .offset(y: 4)
+                }
+            }
         }
         .buttonStyle(.plain)
     }
 
     private func rouletteItem() -> some View {
-        Button(action: onRecommend) {
+        let isSelected = selected == .recommend
+        return Button(action: onRecommend) {
             VStack(spacing: 4) {
                 Image(systemName: "die.face.5.fill")
                     .font(.system(size: 20, weight: .semibold))
@@ -1337,25 +1486,39 @@ private struct ReferenceBottomBar: View {
                         ZStack {
                             Circle()
                                 .fill(
-                                    LinearGradient(
-                                        colors: [Color(red: 0.96, green: 0.20, blue: 0.22), Color.accentRed],
-                                        startPoint: .topLeading,
-                                        endPoint: .bottomTrailing
+                                    isSelected
+                                        ? AnyShapeStyle(LinearGradient(
+                                            colors: [Color(red: 0.96, green: 0.20, blue: 0.22), Color.accentRed],
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        ))
+                                        : AnyShapeStyle(LinearGradient(
+                                            colors: [Color.white, Color.ivory],
+                                            startPoint: .top,
+                                            endPoint: .bottom
+                                        ))
+                                )
+                                .overlay(
+                                    Circle().stroke(
+                                        isSelected ? Color.white.opacity(0.88) : Color.caramelDeep.opacity(0.35),
+                                        lineWidth: 1.2
                                     )
                                 )
-                                .overlay(Circle().stroke(Color.white.opacity(0.88), lineWidth: 1.2))
-                                .shadow(color: Color.accentRed.opacity(0.28), radius: 5, y: 3)
+                                .shadow(
+                                    color: isSelected ? Color.accentRed.opacity(0.28) : Color.caramelDeep.opacity(0.2),
+                                    radius: 5, y: 3
+                                )
                             Image(systemName: "die.face.5.fill")
                                 .font(.system(size: 24, weight: .bold))
-                                .foregroundStyle(.white)
+                                .foregroundStyle(isSelected ? Color.white : Color.accentRed)
                         }
                         .frame(width: 45.36, height: 45.36)
                         .offset(y: -14)
                     }
 
                 Text("추천")
-                    .font(.system(size: 10, weight: selected == .recommend ? .bold : .medium))
-                    .foregroundStyle(selected == .recommend ? Color.accentRed : Color.charcoalText)
+                    .font(.system(size: 10, weight: isSelected ? .bold : .medium))
+                    .foregroundStyle(isSelected ? Color.accentRed : Color.ivory.opacity(0.7))
             }
             .frame(maxWidth: .infinity)
         }
@@ -1366,15 +1529,18 @@ private struct ReferenceBottomBar: View {
 
 /// 선택된 추천 버튼과 하단 바를 하나의 물성으로 연결하는 중앙 돌출형 표면.
 private struct RaisedCenterNavigationShape: Shape {
+    var inset: CGFloat = 0
+
     func path(in rect: CGRect) -> Path {
-        let radius: CGFloat = 22
-        let top: CGFloat = 20
-        let center = rect.midX
-        let shoulder: CGFloat = 44
-        let crown: CGFloat = 0
+        let workingRect = rect.insetBy(dx: inset, dy: inset)
+        let radius: CGFloat = max(22 - inset, 4)
+        let top: CGFloat = 20 + inset
+        let center = workingRect.midX
+        let shoulder: CGFloat = max(44 - inset, 8)
+        let crown: CGFloat = inset
         var path = Path()
 
-        path.move(to: CGPoint(x: radius, y: top))
+        path.move(to: CGPoint(x: workingRect.minX + radius, y: top))
         path.addLine(to: CGPoint(x: center - shoulder, y: top))
         path.addCurve(
             to: CGPoint(x: center, y: crown),
@@ -1386,33 +1552,33 @@ private struct RaisedCenterNavigationShape: Shape {
             control1: CGPoint(x: center + 30, y: crown),
             control2: CGPoint(x: center + 32, y: top)
         )
-        path.addLine(to: CGPoint(x: rect.maxX - radius, y: top))
+        path.addLine(to: CGPoint(x: workingRect.maxX - radius, y: top))
         path.addArc(
-            center: CGPoint(x: rect.maxX - radius, y: top + radius),
+            center: CGPoint(x: workingRect.maxX - radius, y: top + radius),
             radius: radius,
             startAngle: .degrees(-90),
             endAngle: .degrees(0),
             clockwise: false
         )
-        path.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY - radius))
+        path.addLine(to: CGPoint(x: workingRect.maxX, y: workingRect.maxY - radius))
         path.addArc(
-            center: CGPoint(x: rect.maxX - radius, y: rect.maxY - radius),
+            center: CGPoint(x: workingRect.maxX - radius, y: workingRect.maxY - radius),
             radius: radius,
             startAngle: .degrees(0),
             endAngle: .degrees(90),
             clockwise: false
         )
-        path.addLine(to: CGPoint(x: radius, y: rect.maxY))
+        path.addLine(to: CGPoint(x: workingRect.minX + radius, y: workingRect.maxY))
         path.addArc(
-            center: CGPoint(x: radius, y: rect.maxY - radius),
+            center: CGPoint(x: workingRect.minX + radius, y: workingRect.maxY - radius),
             radius: radius,
             startAngle: .degrees(90),
             endAngle: .degrees(180),
             clockwise: false
         )
-        path.addLine(to: CGPoint(x: 0, y: top + radius))
+        path.addLine(to: CGPoint(x: workingRect.minX, y: top + radius))
         path.addArc(
-            center: CGPoint(x: radius, y: top + radius),
+            center: CGPoint(x: workingRect.minX + radius, y: top + radius),
             radius: radius,
             startAngle: .degrees(180),
             endAngle: .degrees(270),

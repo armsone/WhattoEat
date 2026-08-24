@@ -1,4 +1,4 @@
-# WhattoEat (v0.1.5)
+# WhattoEat (v0.3.0)
 
 "오늘 뭐 먹지?"를 도와주는 iOS/iPadOS MVP. 현재 위치 주변 음식점을 백엔드(카카오 로컬 카테고리 검색 FD6 프록시)에서 받아, **근거가 있는 대표 메뉴만** 보여주고 하나를 고르거나 무작위로 골라 준 뒤 Apple 지도 길 안내로 연결합니다. 확정한 선택은 이 기기에만 기록되어 "이 기기에서 많이 고른 메뉴" 순위로 표시됩니다.
 
@@ -94,7 +94,7 @@ curl "http://localhost:8080/api/restaurants?latitude=37.5665&longitude=126.9780"
 
 ## 파일 구성
 
-- `WhattoEat.xcodeproj/` — Xcode 프로젝트 (iOS 17.0+, 버전 0.1.0, 빌드 `202608231359`, 번들 ID `com.nasfinder.WhattoEat`)
+- `WhattoEat.xcodeproj/` — Xcode 프로젝트 (iOS 17.0+, 버전 0.3.0, 빌드 `202608241540`, 번들 ID `com.nasfinder.WhattoEat`)
 - `WhattoEat/` — SwiftUI 소스, Info.plist, 에셋
 - `Config/API.xcconfig.example` — 백엔드 주소 xcconfig 예시(선택)
 - `server/server.js` — Node 20 표준 라이브러리 참조 서버
