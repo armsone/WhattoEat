@@ -1,0 +1,20 @@
+.DS_Store
+
+# Local credentials
+Config/API.xcconfig
+.env
+.env.*
+!.env.example
+
+# Xcode user and build output
+xcuserdata/
+*.xcuserstate
+DerivedData/
+build/
+.build/
+*.xcarchive/
+
+# Task-local generated output
+.codex-derived/
+.codex-release/
+tmp/

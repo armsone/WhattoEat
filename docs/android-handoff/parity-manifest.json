@@ -1,0 +1,230 @@
+{
+  "schemaVersion": "1.0",
+  "generatedAt": "2026-08-24T00:32:00+09:00",
+  "parityPolicy": {
+    "appOwned": "exact-iphone-replica",
+    "platformReinterpretation": false,
+    "osOwnedExceptions": [
+      "statusBar",
+      "dynamicIsland",
+      "homeIndicator",
+      "systemKeyboardAndIME",
+      "systemPermissionPrompt",
+      "externalMapApp",
+      "appStoreOrPlayStore",
+      "mapProviderTileInterior"
+    ],
+    "note": "Material styling, Roboto substitution, Material icon substitution, Android-specific reflow, app-owned dialog redesign, and gesture reinterpretation are not allowed."
+  },
+  "baseline": {
+    "productName": "오늘 뭐 먹지??",
+    "bundleIdentifier": "com.nasfinder.WhattoEat",
+    "productVersion": "0.2.1",
+    "build": "202608232316",
+    "sourceRoot": "/Users/armsone/git/WhattoEat ",
+    "git": {
+      "head": null,
+      "worktreeStatus": "unavailable",
+      "reason": "source directory is not a Git repository"
+    }
+  },
+  "captureEnvironment": {
+    "deviceName": "iPhone 17",
+    "modelIdentifier": "iPhone18,3",
+    "os": "iOS 26.5",
+    "simulatorUDID": "ECE26B0D-16DB-4DA8-86E9-C0B256901484",
+    "orientation": "portrait",
+    "theme": "light",
+    "displayScale": 3,
+    "logicalViewportPoints": { "width": 402, "height": 874 },
+    "pixelViewport": { "width": 1206, "height": 2622 },
+    "coordinateOrigin": "top-left",
+    "status": "confirmed"
+  },
+  "screens": [
+    {
+      "id": "home.default-auto",
+      "route": "home",
+      "state": "default-auto",
+      "file": "screenshots/home-current.png",
+      "bytes": 1689936,
+      "sha256": "49c6b083c78d5a9daf810348b15dbb44efe46335644b1ff032096401957518a3",
+      "entryProcedure": ["Launch installed app"],
+      "sourceEvidence": ["WhattoEat/ContentView.swift:587", "WhattoEat/ContentView.swift:1136"],
+      "status": "confirmed-current"
+    },
+    {
+      "id": "region.auto-resolved",
+      "route": "region",
+      "state": "auto-resolved-nearby-and-frequent",
+      "file": "screenshots/region-current.png",
+      "bytes": 499187,
+      "sha256": "68520f5105b84dc196fce23f9aecd210b7f99068bb791489314b43ff749da617",
+      "entryProcedure": ["Tap bottom Region"],
+      "sourceEvidence": ["WhattoEat/ContentView.swift:1234"],
+      "status": "confirmed-current"
+    },
+    {
+      "id": "region.search-focused",
+      "route": "region",
+      "state": "search-field-focused-korean-keyboard",
+      "file": "screenshots/region-search-keyboard-current.png",
+      "bytes": 542003,
+      "sha256": "2d540c312a1d87607167de522633ad8adc13f1021251923c74a4e7b0b69a5f90",
+      "entryProcedure": ["Tap bottom Region", "Tap region search field"],
+      "sourceEvidence": ["WhattoEat/ContentView.swift:1268", "WhattoEat/ContentView.swift:1296"],
+      "osOwnedRegions": ["systemKeyboardAndIME"],
+      "status": "confirmed-current"
+    },
+    {
+      "id": "recommendation.loading-under-10s",
+      "route": "result",
+      "state": "loading-under-10-seconds",
+      "file": "screenshots/recommendation-loading-current.png",
+      "bytes": 1490460,
+      "sha256": "f3dc32b42c7b90db080e3c55fdd58d950127f853f9cbefe0e89117caea96542d",
+      "entryProcedure": ["Tap bottom Recommend", "Capture immediately"],
+      "sourceEvidence": ["WhattoEat/ContentView.swift:1657"],
+      "status": "confirmed-current"
+    },
+    {
+      "id": "recommendation.results",
+      "route": "result",
+      "state": "populated-main-and-carousel",
+      "file": "screenshots/recommendation-results-current.png",
+      "bytes": 1539559,
+      "sha256": "921a19e992eda034bbd730d9897a40f3c9a04606761c43fbda03e20e9a7b90c0",
+      "entryProcedure": ["Tap bottom Recommend", "Wait for request completion"],
+      "sourceEvidence": ["WhattoEat/ContentView.swift:1373", "WhattoEat/ContentView.swift:1435"],
+      "knownDiscrepancies": ["User reported horizontal drag does not work although source declares a horizontal ScrollView"],
+      "status": "confirmed-visual-known-interaction-defect"
+    },
+    {
+      "id": "decision.before-record",
+      "route": "decision",
+      "state": "before-record",
+      "file": "screenshots/decision-current.png",
+      "bytes": 1554848,
+      "sha256": "3268dc5298f576438bf4a1f7cb53d864d3d9ead67447d2c0420171f94b6eab0d",
+      "entryProcedure": ["Open recommendation result", "Tap main restaurant card"],
+      "sourceEvidence": ["WhattoEat/ContentView.swift:1802"],
+      "status": "confirmed-current"
+    },
+    {
+      "id": "decision.map-provider-missing",
+      "route": "decision",
+      "state": "naver-not-installed-alert",
+      "file": "screenshots/map-app-missing-alert-current.png",
+      "bytes": 1660418,
+      "sha256": "adbfa6bd2b21bc1493a1dd6c2781179165942cd574c29c82fe656132c036eb45",
+      "entryProcedure": ["Use simulator without Naver Map", "Tap Today here"],
+      "sourceEvidence": ["WhattoEat/ContentView.swift:2013", "WhattoEat/ContentView.swift:2065"],
+      "knownDiscrepancies": [],
+      "status": "confirmed-current"
+    },
+    {
+      "id": "decision.recorded",
+      "route": "decision",
+      "state": "recorded-map-open-failed-or-cancelled",
+      "file": "screenshots/decision-completed-current.png",
+      "bytes": 1493710,
+      "sha256": "41c68c9d17c7c41ad0c37368af216f9acf04996f1fd5233d0551615bfc2bb87b",
+      "entryProcedure": ["Tap Today here", "Cancel missing-map alert"],
+      "sourceEvidence": ["WhattoEat/ContentView.swift:1928"],
+      "status": "confirmed-current"
+    },
+    {
+      "id": "history.empty",
+      "route": "history",
+      "state": "empty",
+      "file": "screenshots/recent-empty-current.png",
+      "bytes": 725718,
+      "sha256": "80bda9e5e337824605fc207c1100a85b30c733fe4092df1484494b02a662a653",
+      "entryProcedure": ["Ensure no choice records", "Tap bottom Recent"],
+      "sourceEvidence": ["WhattoEat/ContentView.swift:2466", "WhattoEat/ContentView.swift:830"],
+      "status": "confirmed-current"
+    },
+    {
+      "id": "history.populated",
+      "route": "history",
+      "state": "one-group-one-record",
+      "file": "screenshots/recent-populated-current.png",
+      "bytes": 446016,
+      "sha256": "07b8a035c7f982ed461d75a4494558840586242f233a3989606ef3cd74b92176",
+      "entryProcedure": ["Record a decision", "Tap bottom Recent"],
+      "sourceEvidence": ["WhattoEat/ContentView.swift:2466"],
+      "status": "confirmed-current"
+    },
+    {
+      "id": "favorites.empty",
+      "route": "favorites",
+      "state": "empty",
+      "file": "screenshots/favorites-empty-current.png",
+      "bytes": 789667,
+      "sha256": "352b696334cf7405575a9cb1605e72c2e437bb852054fb46ddf1d89b530e7c77",
+      "entryProcedure": ["Ensure no favorites", "Tap bottom Favorites"],
+      "sourceEvidence": ["WhattoEat/ContentView.swift:2557", "WhattoEat/ContentView.swift:830"],
+      "status": "confirmed-current"
+    },
+    {
+      "id": "favorites.populated",
+      "route": "favorites",
+      "state": "one-group-one-record",
+      "file": "screenshots/favorites-populated-current.png",
+      "bytes": 450667,
+      "sha256": "3275a89340f564f212d26e590c2522a58eebe65780e6eef05aab5a3835e46ec9",
+      "entryProcedure": ["Favorite main recommendation", "Tap bottom Favorites"],
+      "sourceEvidence": ["WhattoEat/ContentView.swift:2557"],
+      "status": "confirmed-current"
+    },
+    {
+      "id": "settings.naver-reminder-on",
+      "route": "profile",
+      "state": "naver-selected-reminder-on",
+      "file": "screenshots/settings-current.png",
+      "bytes": 655714,
+      "sha256": "f1dcad722462d013f993c7e026dd63655d1a1379ac5f0df7d13fcc1b78c4f836",
+      "entryProcedure": ["Tap top-right Settings"],
+      "sourceEvidence": ["WhattoEat/ContentView.swift:2140"],
+      "status": "confirmed-current"
+    }
+  ],
+  "assets": [
+    {"file":"WhattoEat/Assets.xcassets/AppIcon.appiconset/AppIcon-1024.png","width":1024,"height":1024,"sha256":"5cfa41ee17b983b71323b6a3168b4777608eb0e5cc10218ab30cb7dcc562c9fa"},
+    {"file":"WhattoEat/Assets.xcassets/Wordmark.imageset/Wordmark.png","width":190,"height":48,"sha256":"12af704062611e853caa60d035f788d062a901415666561a8811d312a04dcb69"},
+    {"file":"WhattoEat/Assets.xcassets/LunchHero.imageset/LunchHero.png","width":400,"height":300,"sha256":"1366e2179c74c281dc7eb2c9cbc17b170df0692c23e9b89c6ff74e7c24127e08"},
+    {"file":"WhattoEat/Assets.xcassets/PinWell.imageset/PinWell.png","width":64,"height":64,"sha256":"f9da5c9402f76311c720f0f1d1b09bd9c0e0c89ccbae0d039054bd2a6f50efbc"},
+    {"file":"WhattoEat/Assets.xcassets/EmptyRecent.imageset/EmptyRecent.png","width":768,"height":768,"sha256":"ac7081f88bf668f66c74d9efd94387380c1b4ce271027c9eeb5fa5d04da463fe"},
+    {"file":"WhattoEat/Assets.xcassets/EmptyFavorites.imageset/EmptyFavorites.png","width":1254,"height":1254,"sha256":"436fd42fe2267db9aac5ec66c57aac0ae9eb288e6289735552b8e1eacd6a7ab5"},
+    {"file":"WhattoEat/Assets.xcassets/FoodMain.imageset/FoodMain.png","width":190,"height":295,"sha256":"a41948ce3d26145ca34817598bd069d0b9275e0110881d9b009566a32f30fd3b"},
+    {"file":"WhattoEat/Assets.xcassets/FoodSide1.imageset/FoodSide1.png","width":125,"height":110,"sha256":"429240d6515c9d177da55d004b72c1ccc802c9e27caa612e626715e83e7afca3"},
+    {"file":"WhattoEat/Assets.xcassets/FoodSide2.imageset/FoodSide2.png","width":125,"height":110,"sha256":"082b4552d9f050c404c40474d345b7c09631d0e23dac8a00d3380f37aefe94cc"},
+    {"file":"WhattoEat/Assets.xcassets/FoodSide3.imageset/FoodSide3.png","width":125,"height":110,"sha256":"813215c21185e4c4b222f5ac591899f7e6e9f9c7ab5b89368fe1e404781fe39d"},
+    {"file":"WhattoEat/Assets.xcassets/MapApple.imageset/MapApple.png","width":512,"height":512,"sha256":"2fc6f15f8df107ef6fb6eab41820f5c2a80f6d568fc1720aafb53feb13033e9d"},
+    {"file":"WhattoEat/Assets.xcassets/MapNaver.imageset/MapNaver.png","width":512,"height":512,"sha256":"241b8cfc939381aeae911e1f0532af59f083f28063afad54e585318a819341e4"},
+    {"file":"WhattoEat/Assets.xcassets/MapKakao.imageset/MapKakao.png","width":512,"height":512,"sha256":"f8c85eb64b9829a0826aa444bccd3ac65e4be3f2a0a3799b36792511cd31e183"},
+    {"file":"WhattoEat/Assets.xcassets/MapGoogle.imageset/MapGoogle.png","width":512,"height":512,"sha256":"bb802e4429fc57cf8651039100c66ccf9c28b602e16c8943a6657183fc100cb5"}
+  ],
+  "missingRequiredCaptures": [
+    "region.manual-selected",
+    "region.nearby-empty",
+    "region.frequent-empty",
+    "recommendation.loading-retry-after-10s",
+    "recommendation.failed",
+    "recommendation.denied",
+    "recommendation.empty",
+    "recommendation.carousel-scrolled-to-end",
+    "decision.business-info-alert",
+    "decision.other-map-picker",
+    "photo.information-sheet",
+    "history.swipe-delete-open",
+    "favorites.swipe-delete-open",
+    "settings.permission-states",
+    "settings.reminder-off",
+    "settings.copyright-expanded",
+    "settings.notification-denied-alert",
+    "ipad.portrait-landscape-split",
+    "mac.default-narrow-wide",
+    "accessibility.large-text-voiceover"
+  ]
+}
