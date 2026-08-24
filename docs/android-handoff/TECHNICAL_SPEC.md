@@ -125,7 +125,7 @@ loading은 spinner와 문구를 보이고 정확히 10초 후 `다시 고르기`
 
 요소 순서:
 
-1. hero: 사진132×136 + 선택적 category pill + menu24 bold + restaurant16 semibold + 선택적 `여기서 약 {N}m`. 전체 높이136/radius20.
+1. hero: 사진132×136 + 선택적 category pill + menu24 bold + restaurant16 semibold + 선택적 `여기서 약 {N}m`. 전체 높이136/radius20. 추천 결과의 대표 카드 하단은 전화번호가 있으면 왼쪽 `전화걸기`, 오른쪽 `이곳 보기`를 한 줄로 표시하고, 번호가 없으면 전화 버튼을 표시하지 않는다. `함께 보면 좋은 맛집` 카드도 전화번호가 있는 항목만 오른쪽에 전화 아이콘 버튼을 표시한다. `오늘의 결정` 화면은 전화번호가 있으면 번호와 `전화걸기`를 함께 표시한다. 전화 버튼은 숫자와 선행 `+`만 보존한 시스템 전화 URL을 열며 카드 선택과 독립적으로 동작해야 한다.
 2. Apple MapKit 미리보기 높이244/radius20. top-left `{지도 shortName}로 길 찾기`, 주소가 있으면 bottom-left address. 지도 자체 hit testing off, outer button이 탭을 소유.
 3. 선택 전 `오늘은 여기로`, 선택 후 `최근 한 끼에 담았어요`.
 4. `영업 정보는 지도에서 확인`.

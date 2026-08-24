@@ -64,6 +64,22 @@ struct Decision: Identifiable {
     var id: String { menu + "|" + restaurant.id }
 }
 
+private extension Restaurant {
+    var displayPhone: String? {
+        guard let phone else { return nil }
+        let trimmed = phone.trimmingCharacters(in: .whitespacesAndNewlines)
+        return trimmed.isEmpty ? nil : trimmed
+    }
+
+    var telURL: URL? {
+        guard let trimmed = displayPhone else { return nil }
+        let digits = trimmed.filter { "0123456789".contains($0) }
+        guard digits.count >= 3 else { return nil }
+        let number = (trimmed.first == "+" ? "+" : "") + digits
+        return URL(string: "tel:\(number)")
+    }
+}
+
 // MARK: - 점심 알림
 
 /// 이 앱 기능 전용 로컬 알림. 서버 푸시가 아니며, 알림 문구도 실시간 데이터를 주장하지 않는다.
@@ -1609,6 +1625,7 @@ private struct ReferenceResultsPage: View {
 }
 
 private struct ReferenceRestaurantResults: View {
+    @Environment(\.openURL) private var openURL
     let restaurants: [Restaurant]
     let regionLabel: String
     @ObservedObject var store: ChoiceStore
@@ -1707,16 +1724,40 @@ private struct ReferenceRestaurantResults: View {
                     }
                     Text("가까워서 더 반가운 한 끼").font(.caption).foregroundStyle(Color.charcoalSoft).lineLimit(2)
                     Spacer(minLength: 12)
-                    HStack(spacing: 10) {
-                        Text("이곳 보기")
-                        Spacer(minLength: 10)
-                        Image(systemName: "chevron.right")
+                    HStack(spacing: 6) {
+                        if let url = decision.restaurant.telURL {
+                            Button {
+                                openURL(url)
+                            } label: {
+                                HStack(spacing: 4) {
+                                    Image(systemName: "phone.fill")
+                                    Text("전화걸기")
+                                        .lineLimit(1)
+                                        .minimumScaleFactor(0.75)
+                                }
+                                    .padding(.horizontal, 6)
+                                    .frame(maxWidth: .infinity)
+                                    .frame(minHeight: 36)
+                                    .background(Capsule().fill(Color.ivory).overlay(Capsule().stroke(Color.canvasLine)))
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel("\(decision.restaurant.name)에 전화걸기")
+                            .accessibilityHint("영업 여부를 확인하기 위해 전화 앱을 열어요")
+                        }
+                        HStack(spacing: 4) {
+                            Text("이곳 보기")
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.75)
+                            Image(systemName: "chevron.right")
+                        }
+                        .padding(.horizontal, 6)
+                        .frame(maxWidth: .infinity)
+                        .frame(minHeight: 36)
+                        .background(Capsule().fill(Color.ivory).overlay(Capsule().stroke(Color.canvasLine)))
                     }
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(Color.charcoalText)
-                    .padding(.horizontal, 16)
-                    .frame(maxWidth: .infinity, minHeight: 36)
-                    .background(Capsule().fill(Color.ivory).overlay(Capsule().stroke(Color.canvasLine)))
+                    .frame(maxWidth: .infinity)
                 }
                 .padding(.horizontal, 14)
                 .padding(.top, 16)
@@ -1777,6 +1818,7 @@ private struct ReferenceRestaurantResults: View {
                     }
                 }
                 .padding(.horizontal, 9)
+                .padding(.trailing, decision.restaurant.telURL == nil ? 0 : 40)
             }
             .padding(.bottom, 14)
             .frame(width: width, alignment: .leading)
@@ -1790,6 +1832,24 @@ private struct ReferenceRestaurantResults: View {
 
             favoriteButton(for: decision, imageName: imageName)
                 .padding(5)
+
+            if let url = decision.restaurant.telURL {
+                Button {
+                    openURL(url)
+                } label: {
+                    Image(systemName: "phone.fill")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(Color.charcoalText)
+                        .frame(width: 36, height: 36)
+                        .background(Circle().fill(Color.ivory))
+                        .overlay(Circle().stroke(Color.canvasLine.opacity(0.7), lineWidth: 1))
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("\(decision.restaurant.name)에 전화걸기")
+                .accessibilityHint("영업 여부를 확인하기 위해 전화 앱을 열어요")
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
+                .padding(5)
+            }
         }
         .frame(width: width)
     }
@@ -2135,6 +2195,7 @@ struct ResultsView: View {
 // MARK: - 결정 화면
 
 struct DecisionView: View {
+    @Environment(\.openURL) private var openURL
     let decision: Decision
     let regionLabel: String
     @ObservedObject var store: ChoiceStore
@@ -2216,6 +2277,35 @@ struct DecisionView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
                 .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color.caramel.opacity(0.48), lineWidth: 1))
                 .shadow(color: Color.caramelDeep.opacity(0.12), radius: 5, y: 2)
+
+                if let phone = decision.restaurant.displayPhone,
+                   let url = decision.restaurant.telURL {
+                    Button { openURL(url) } label: {
+                        HStack(spacing: 10) {
+                            ReferenceIconWell(systemName: "phone.fill", color: .accentRed, diameter: 34)
+                            Text(phone)
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundStyle(Color.charcoalText)
+                                .lineLimit(1)
+                            Spacer(minLength: 8)
+                            Text("전화걸기")
+                                .font(.caption.bold())
+                                .foregroundStyle(Color.mintInk)
+                                .lineLimit(1)
+                            Image(systemName: "chevron.right")
+                                .font(.caption.bold())
+                                .foregroundStyle(Color.charcoalSoft)
+                        }
+                        .padding(.horizontal, 14)
+                        .frame(height: 48)
+                        .background(Color.ivory)
+                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                        .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.canvasLine, lineWidth: 1))
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("\(decision.restaurant.name) \(phone)에 전화걸기")
+                    .accessibilityHint("영업 여부를 확인하기 위해 전화 앱을 열어요")
+                }
 
                 Button(action: openMap) {
                     ZStack {
