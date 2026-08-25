@@ -8,7 +8,7 @@ features:
       status: intentional_exception
       behavior: iPhone and iPad TestFlight builds contain no direct updater.
     mac_catalyst_direct:
-      status: implemented_source_only
+      status: verified_release_candidate
       repository: armsone/WhattoEat
       metadata: official GitHub latest stable release API
       asset: WhattoEat-Mac-<version>-<build>.dmg
@@ -18,7 +18,7 @@ features:
         - manual_check_download_cancel_retry
         - validate_repo_tag_https_path_size_sha256_and_newer_version_build
         - open_verified_dmg_with_system
-      verification: pending_build_and_runtime
+      verification: signed Catalyst archive, Developer ID export, app and DMG notarization, stapling, and Gatekeeper assessment passed
     android_direct:
       status: implemented_source_only
       repository: armsone/WhattoEat-Android
