@@ -1,4 +1,4 @@
-# WhattoEat (v0.4.0)
+# WhattoEat (v0.4.1)
 
 "오늘 뭐 먹지?"를 도와주는 iOS/iPadOS MVP. 현재 위치 주변 음식점을 백엔드(카카오 로컬 카테고리 검색 FD6 프록시)에서 받아, **근거가 있는 대표 메뉴만** 보여주고 하나를 고르거나 무작위로 골라 준 뒤 Apple 지도 길 안내로 연결합니다. 확정한 선택은 이 기기에만 기록되어 "이 기기에서 많이 고른 메뉴" 순위로 표시됩니다.
 
@@ -19,6 +19,9 @@
 - **업데이트**: iPhone·iPad TestFlight는 시스템 관리 경로를 유지하고, Mac 직접 배포판만 공식 GitHub Releases의 DMG를 자동 또는 수동으로 확인·다운로드해 SHA-256 검증 후 엽니다.
 - **서버**: `server/server.js`와 `server/photos.js`. 1~4페이지를 `is_end` 또는 고유 place id 13개까지 수집·중복 제거 후 안정된 JSON 계약으로 반환. 앱은 이 13곳 중 4곳을 무작위로 추천한다. 업스트림 타임아웃 5초, `/health` 제공, `PORT`에 바인딩.
 - **메뉴 정책** (`WhattoEat/MenuPolicy.swift`): 투명한 정확 토큰 화이트리스트(김밥, 냉면, 돈가스/돈까스, 초밥, 국밥, 설렁탕, 칼국수, 햄버거, 피자, 치킨, 떡볶이, 샤브샤브 등)가 가게 이름 또는 최종 카테고리 텍스트에 있을 때, 또는 서버의 운영자 확인 데이터(`curated-menus.json`)가 있을 때만 '대표 메뉴'로 표시합니다. '한식' 같은 넓은 분류를 특정 요리로 바꾸지 않으며, 근거 없는 음식점은 "대표 메뉴 정보 없음"으로 정직하게 표시합니다.
+
+## 사용자 변경
+- 하단 추천 버튼은 가방 아이콘 표식으로 표시되며, 선택 시 밝은 원형(흰색 텍스트)과 아래 빨간 막대로만 강조됩니다.
 
 ## 정확한 한계 (중요)
 
@@ -95,7 +98,7 @@ curl "http://localhost:8080/api/restaurants?latitude=37.5665&longitude=126.9780"
 
 ## 파일 구성
 
-- `WhattoEat.xcodeproj/` — Xcode 프로젝트 (iOS 17.0+, 버전 0.4.0, 빌드 `202608251921`, 번들 ID `com.nasfinder.WhattoEat`)
+- `WhattoEat.xcodeproj/` — Xcode 프로젝트 (iOS 17.0+, 버전 0.4.1, 빌드 `202608252106`, 번들 ID `com.nasfinder.WhattoEat`)
 - `WhattoEat/` — SwiftUI 소스, Info.plist, 에셋
 - `Config/API.xcconfig.example` — 백엔드 주소 xcconfig 예시(선택)
 - `server/server.js` — Node 20 표준 라이브러리 참조 서버

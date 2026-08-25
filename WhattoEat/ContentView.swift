@@ -1485,19 +1485,11 @@ private struct ReferenceBottomBar: View {
                     .overlay {
                         ZStack {
                             Circle()
-                                .fill(
-                                    isSelected
-                                        ? AnyShapeStyle(LinearGradient(
-                                            colors: [Color(red: 0.96, green: 0.20, blue: 0.22), Color.accentRed],
-                                            startPoint: .topLeading,
-                                            endPoint: .bottomTrailing
-                                        ))
-                                        : AnyShapeStyle(LinearGradient(
-                                            colors: [Color.white, Color.ivory],
-                                            startPoint: .top,
-                                            endPoint: .bottom
-                                        ))
-                                )
+                                .fill(AnyShapeStyle(LinearGradient(
+                                    colors: [Color.white, Color.ivory],
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                )))
                                 .overlay(
                                     Circle().stroke(
                                         isSelected ? Color.white.opacity(0.88) : Color.caramelDeep.opacity(0.35),
@@ -1505,12 +1497,13 @@ private struct ReferenceBottomBar: View {
                                     )
                                 )
                                 .shadow(
-                                    color: isSelected ? Color.accentRed.opacity(0.28) : Color.caramelDeep.opacity(0.2),
+                                    color: Color.caramelDeep.opacity(0.2),
                                     radius: 5, y: 3
                                 )
-                            Image(systemName: "die.face.5.fill")
-                                .font(.system(size: 24, weight: .bold))
-                                .foregroundStyle(isSelected ? Color.white : Color.accentRed)
+                            Image("LunchBagNav")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 30, height: 30)
                         }
                         .frame(width: 45.36, height: 45.36)
                         .offset(y: -14)
@@ -1518,9 +1511,17 @@ private struct ReferenceBottomBar: View {
 
                 Text("추천")
                     .font(.system(size: 10, weight: isSelected ? .bold : .medium))
-                    .foregroundStyle(isSelected ? Color.accentRed : Color.ivory.opacity(0.7))
+                    .foregroundStyle(Color.ivory.opacity(0.7))
             }
             .frame(maxWidth: .infinity)
+            .overlay(alignment: .bottom) {
+                if isSelected {
+                    Capsule()
+                        .fill(Color.accentRed)
+                        .frame(width: 14, height: 2.5)
+                        .offset(y: 4)
+                }
+            }
         }
         .buttonStyle(.plain)
         .accessibilityLabel("추천 다시 고르기")

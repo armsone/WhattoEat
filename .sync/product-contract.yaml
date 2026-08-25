@@ -2,8 +2,8 @@ version: 1
 product: whattoeat
 features:
   direct_updates:
-    version: 0.4.0
-    build: "202608251921"
+    version: 0.4.1
+    build: "202608252106"
     apple_testflight:
       status: intentional_exception
       behavior: iPhone and iPad TestFlight builds contain no direct updater.
@@ -20,14 +20,68 @@ features:
         - open_verified_dmg_with_system
       verification: signed Catalyst archive, Developer ID export, app and DMG notarization, stapling, and Gatekeeper assessment passed
     android_direct:
-      status: implemented_source_only
+      status: verified_release_candidate
       repository: armsone/WhattoEat-Android
       metadata: official GitHub latest stable release API
-      asset: WhattoEat-Android-v<versionCode>.apk
+      asset: WhattoEat-Android-<version>.apk
       behavior:
         - check_on_start
         - automatic_download_default_on_and_user_controllable
         - manual_check_download_cancel_retry
         - validate_repo_tag_https_path_size_sha256_package_signer_and_newer_apk
         - hand_verified_apk_to_system_installer
-      verification: pending_build_and_runtime
+      verification: JVM tests, debug assembly, seven connected instrumentation tests, data-preserving install, and twelve deterministic physical-device captures passed on SM-F968N API 36
+  bottom_navigation:
+    recommendation:
+      purpose: Open or restart today's meal recommendation from the raised center tab.
+      normal_result: The recommendation route opens while the tab remains visibly selected.
+      states:
+        - unselected
+        - selected
+      visual_contract:
+        asset: transparent full-color lunch bag derived from the product app icon
+        circle_background: white-to-ivory in every state
+        circle_shadow: neutral caramel in every state
+        label: 추천 in ivory at 70 percent opacity
+        selection_indicator: short red bar below the label only
+        prohibited_selection_treatments:
+          - red circle background
+          - red circle glow
+          - red label
+      gestures_accessibility:
+        - tap opens or restarts recommendation
+        - accessibility label is 추천 다시 고르기
+        - selected tab semantics are exposed
+      supported_devices_layouts:
+        - iPhone portrait and landscape
+        - iPad resizable layouts
+        - Mac Catalyst resizable window
+        - Android phone portrait and landscape
+        - Android tablet resizable layouts
+        - Google TV D-pad focus flow
+      platform_adaptations:
+        apple:
+          circle_diameter_points: 45.36
+          bag_size_points: 30
+          group_lift_points: -14
+          indicator_size_points: 14x2.5
+        android:
+          circle_diameter_dp: 57.834
+          bag_size_dp: 38.25
+          group_lift_dp: -15.897
+          indicator_size_dp: 21x3.75
+      implementations:
+        apple:
+          status: visually_verified
+          source_refs:
+            - WhattoEat/ContentView.swift:1478
+            - WhattoEat/Assets.xcassets/LunchBagNav.imageset
+        android:
+          status: runtime_and_visually_verified
+          source_refs:
+            - app/src/main/java/com/nasfinder/whattoeat/ui/components/AppBottomBar.kt
+            - android-handoff/source-assets/LunchBagNav.png
+      parity_row_ids:
+        - global_recommend_unselected.center_tab.rendering
+        - global_recommend_selected.center_tab.rendering
+        - global_recommend_selected.center_tab.action
