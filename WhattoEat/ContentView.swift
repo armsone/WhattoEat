@@ -2738,6 +2738,9 @@ struct SettingsView: View {
     @StateObject private var permissionLocationManager = LocationManager()
     @State private var showPermissionDeniedAlert = false
     @State private var photoCopyrightExpanded = false
+#if targetEnvironment(macCatalyst)
+    @StateObject private var macUpdater = MacDirectUpdateManager.shared
+#endif
 
     private static let leadOptions = [0, 5, 10, 15, 30]
 
@@ -2927,6 +2930,16 @@ struct SettingsView: View {
                             .transition(.opacity.combined(with: .move(edge: .top)))
                         }
                     }
+
+#if targetEnvironment(macCatalyst)
+                    settingsGroup(
+                        icon: "arrow.down.circle.fill",
+                        title: "앱 업데이트",
+                        footnote: "Mac 직접 배포판의 새 버전을 안전하게 확인하고 받아요."
+                    ) {
+                        MacDirectUpdateSettingsView(updater: macUpdater)
+                    }
+#endif
                 }
                 .padding(.horizontal, 28)
                 .padding(.vertical, 12)

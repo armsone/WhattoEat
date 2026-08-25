@@ -1,0 +1,33 @@
+version: 1
+product: whattoeat
+features:
+  direct_updates:
+    version: 0.4.0
+    build: "202608251921"
+    apple_testflight:
+      status: intentional_exception
+      behavior: iPhone and iPad TestFlight builds contain no direct updater.
+    mac_catalyst_direct:
+      status: implemented_source_only
+      repository: armsone/WhattoEat
+      metadata: official GitHub latest stable release API
+      asset: WhattoEat-Mac-<version>-<build>.dmg
+      behavior:
+        - check_on_start
+        - automatic_download_default_on_and_user_controllable
+        - manual_check_download_cancel_retry
+        - validate_repo_tag_https_path_size_sha256_and_newer_version_build
+        - open_verified_dmg_with_system
+      verification: pending_build_and_runtime
+    android_direct:
+      status: implemented_source_only
+      repository: armsone/WhattoEat-Android
+      metadata: official GitHub latest stable release API
+      asset: WhattoEat-Android-v<versionCode>.apk
+      behavior:
+        - check_on_start
+        - automatic_download_default_on_and_user_controllable
+        - manual_check_download_cancel_retry
+        - validate_repo_tag_https_path_size_sha256_package_signer_and_newer_apk
+        - hand_verified_apk_to_system_installer
+      verification: pending_build_and_runtime

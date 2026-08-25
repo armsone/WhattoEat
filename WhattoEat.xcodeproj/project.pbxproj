@@ -16,6 +16,7 @@
 		A1B2C3D40000000000000107 /* ChoiceStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D40000000000000007 /* ChoiceStore.swift */; };
 		A1B2C3D40000000000000108 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D40000000000000008 /* Theme.swift */; };
 		A1B2C3D40000000000000109 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A1B2C3D40000000000000009 /* Assets.xcassets */; };
+		A1B2C3D40000000000000110 /* MacDirectUpdateManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D40000000000000012 /* MacDirectUpdateManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -30,6 +31,7 @@
 		A1B2C3D40000000000000009 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A1B2C3D40000000000000010 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A1B2C3D40000000000000011 /* WhattoEat.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WhattoEat.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A1B2C3D40000000000000012 /* MacDirectUpdateManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacDirectUpdateManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -64,6 +66,7 @@
 				A1B2C3D40000000000000008 /* Theme.swift */,
 				A1B2C3D40000000000000009 /* Assets.xcassets */,
 				A1B2C3D40000000000000010 /* Info.plist */,
+				A1B2C3D40000000000000012 /* MacDirectUpdateManager.swift */,
 			);
 			path = WhattoEat;
 			sourceTree = "<group>";
@@ -154,6 +157,7 @@
 				A1B2C3D40000000000000106 /* MenuPolicy.swift in Sources */,
 				A1B2C3D40000000000000107 /* ChoiceStore.swift in Sources */,
 				A1B2C3D40000000000000108 /* Theme.swift in Sources */,
+				A1B2C3D40000000000000110 /* MacDirectUpdateManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -223,8 +227,8 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = WhattoEat/WhattoEat.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 202608241540;
-				DISPLAY_BUILD_NUMBER = 202608241540;
+				CURRENT_PROJECT_VERSION = 202608251921;
+				DISPLAY_BUILD_NUMBER = 202608251921;
 				DEVELOPMENT_TEAM = T7B4EPLHPK;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -234,7 +238,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.3.0;
+				MARKETING_VERSION = 0.4.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.nasfinder.WhattoEat;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTS_MACCATALYST = YES;
@@ -251,8 +255,8 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = WhattoEat/WhattoEat.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 202608241540;
-				DISPLAY_BUILD_NUMBER = 202608241540;
+				CURRENT_PROJECT_VERSION = 202608251921;
+				DISPLAY_BUILD_NUMBER = 202608251921;
 				DEVELOPMENT_TEAM = T7B4EPLHPK;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -262,7 +266,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.3.0;
+				MARKETING_VERSION = 0.4.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.nasfinder.WhattoEat;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTS_MACCATALYST = YES;

@@ -12,6 +12,7 @@ struct WhattoEatApp: App {
                            alignment: .topLeading)
                     .scaleEffect(1.5, anchor: .topLeading)
             }
+            .task { MacDirectUpdateManager.shared.start() }
         }
         .defaultSize(width: 750, height: 1200)
 #else
