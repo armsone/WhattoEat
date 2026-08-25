@@ -8,7 +8,7 @@ features:
       status: intentional_exception
       behavior: iPhone and iPad TestFlight builds contain no direct updater.
     mac_catalyst_direct:
-      status: verified_release_candidate
+      status: released
       repository: armsone/WhattoEat
       metadata: official GitHub latest stable release API
       asset: WhattoEat-Mac-<version>-<build>.dmg
@@ -19,8 +19,10 @@ features:
         - validate_repo_tag_https_path_size_sha256_and_newer_version_build
         - open_verified_dmg_with_system
       verification: signed Catalyst archive, Developer ID export, app and DMG notarization, stapling, and Gatekeeper assessment passed
+      release: https://github.com/armsone/WhattoEat/releases/tag/v0.4.1
+      sha256: b2387eab4b08056f06539c5dd4fdad59e223f48c4693d1e89c29bfa10c37f847
     android_direct:
-      status: verified_release_candidate
+      status: released
       repository: armsone/WhattoEat-Android
       metadata: official GitHub latest stable release API
       asset: WhattoEat-Android-<version>.apk
@@ -31,6 +33,8 @@ features:
         - validate_repo_tag_https_path_size_sha256_package_signer_and_newer_apk
         - hand_verified_apk_to_system_installer
       verification: JVM tests, debug assembly, seven connected instrumentation tests, data-preserving install, and twelve deterministic physical-device captures passed on SM-F968N API 36
+      release: https://github.com/armsone/WhattoEat-Android/releases/tag/android-v0.4.1
+      sha256: 3e9d66d8a3ad4ce97d5a56550e706b721eb46cf276dbddd1a0e2cbba9133cf59
   bottom_navigation:
     recommendation:
       purpose: Open or restart today's meal recommendation from the raised center tab.
