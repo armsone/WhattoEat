@@ -13,6 +13,7 @@ enum Phase {
     case manualIdle
     case loading
     case failed(String)
+    case locationUnavailable(String)
     case empty
     case results([Restaurant])
 }
@@ -290,7 +291,8 @@ struct ContentView: View {
                         decision = $0
                         page = .decision
                     },
-                    onRetry: { retry() }
+                    onRetry: { retry() },
+                    onOpenAppSettings: { openAppSettings() }
                 )
                 case .decision:
                     if let decision {
@@ -373,7 +375,7 @@ struct ContentView: View {
                 autoLocationStatus = message
                 phase = .idle
             } else {
-                phase = .failed(message)
+                phase = .locationUnavailable(message)
             }
         }
         .onChange(of: locationModeRaw) { _, _ in
@@ -452,6 +454,11 @@ struct ContentView: View {
         regionSearchFocused = false
         pageBeforeSettings = page
         page = .profile
+    }
+
+    private func openAppSettings() {
+        guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
+        UIApplication.shared.open(url)
     }
 
     // MARK: 흐름 제어
@@ -1737,6 +1744,7 @@ private struct ReferenceResultsPage: View {
     let onSettings: () -> Void
     let onPick: (Decision) -> Void
     let onRetry: () -> Void
+    let onOpenAppSettings: () -> Void
 
     var body: some View {
         VStack(spacing: 0) {
@@ -1775,10 +1783,20 @@ private struct ReferenceResultsPage: View {
                     StatusView(icon: "exclamationmark.triangle", title: "문제가 생겼어요", message: message) {
                         Button("다시 시도", action: onRetry).buttonStyle(SecondaryButtonStyle())
                     }
+                case .locationUnavailable(let message):
+                    LocationRecoveryView(title: "위치를 확인하지 못했어요",
+                                         message: message,
+                                         showsAppSettings: false,
+                                         onManualRegion: onBack,
+                                         onRetry: onRetry,
+                                         onOpenAppSettings: onOpenAppSettings)
                 case .denied:
-                    StatusView(icon: "location.slash", title: "위치를 찾을 수 없어요", message: "지역을 직접 지정해 주세요.") {
-                        Button("지역 지정", action: onBack).buttonStyle(SecondaryButtonStyle())
-                    }
+                    LocationRecoveryView(title: "위치 권한이 꺼져 있어요",
+                                         message: "지역을 직접 선택하거나, 설정에서 위치 권한을 켜 주세요.",
+                                         showsAppSettings: true,
+                                         onManualRegion: onBack,
+                                         onRetry: onRetry,
+                                         onOpenAppSettings: onOpenAppSettings)
                 case .empty:
                     StatusView(icon: "fork.knife", title: "주변 음식점을 찾지 못했어요", message: "지역을 바꾸거나 다시 골라 주세요.")
                 default:
@@ -1798,11 +1816,30 @@ private struct ReferenceRestaurantResults: View {
     @ObservedObject var store: ChoiceStore
     let onPick: (Decision) -> Void
     let onRetry: () -> Void
+    @AppStorage("mealSituation") private var mealSituationRaw = MealSituation.all.rawValue
+
+    private var selectedSituation: MealSituation {
+        MealSituation(rawValue: mealSituationRaw) ?? .all
+    }
+
+    private var matchingRestaurants: [Restaurant] {
+        MenuPolicy.restaurants(restaurants, matching: selectedSituation)
+    }
+
+    /// 선택한 상황에 근거 있는 메뉴가 없으면 결과를 숨기지 않고 전체 목록을 보여 준다.
+    private var displayedRestaurants: [Restaurant] {
+        matchingRestaurants.isEmpty ? restaurants : matchingRestaurants
+    }
+
+    private var isShowingFallback: Bool {
+        selectedSituation != .all && matchingRestaurants.isEmpty
+    }
 
     private var fallbackAssets: [String] {
         var used = Set<String>()
-        return restaurants.map { restaurant in
-            let menu = MenuPolicy.menus(for: restaurant).first
+        return displayedRestaurants.map { restaurant in
+            let menu = MenuPolicy.menu(for: restaurant, situation: selectedSituation)
+                ?? MenuPolicy.menus(for: restaurant).first
                 ?? restaurant.category.components(separatedBy: " > ").last
             let asset = FallbackFoodAssets.pick(menu: menu,
                                                 category: restaurant.category,
@@ -1824,6 +1861,15 @@ private struct ReferenceRestaurantResults: View {
             ]
             ScrollView {
                 VStack(alignment: .leading, spacing: 14) {
+                    situationPicker
+
+                    if isShowingFallback {
+                        Label("이 분류의 확인된 메뉴가 없어 전체 추천을 보여드려요.", systemImage: "info.circle")
+                            .font(.caption)
+                            .foregroundStyle(Color.charcoalSoft)
+                            .padding(.horizontal, 2)
+                    }
+
                     if let first = decision(at: 0) {
                         topCard(first)
                     }
@@ -1832,7 +1878,7 @@ private struct ReferenceRestaurantResults: View {
                         .font(.headline)
                         .padding(.top, 20)
                     LazyVGrid(columns: columns, alignment: .leading, spacing: gridSpacing) {
-                        ForEach(1..<restaurants.count, id: \.self) { index in
+                        ForEach(1..<displayedRestaurants.count, id: \.self) { index in
                             if let item = decision(at: index) {
                                 smallCard(item, index: index, width: smallCardWidth)
                             }
@@ -1848,12 +1894,42 @@ private struct ReferenceRestaurantResults: View {
     }
 
     private func decision(at index: Int) -> Decision? {
-        guard restaurants.indices.contains(index) else { return nil }
-        let restaurant = restaurants[index]
-        let menu = MenuPolicy.menus(for: restaurant).first
+        guard displayedRestaurants.indices.contains(index) else { return nil }
+        let restaurant = displayedRestaurants[index]
+        let menu = MenuPolicy.menu(for: restaurant, situation: selectedSituation)
+            ?? MenuPolicy.menus(for: restaurant).first
             ?? restaurant.category.components(separatedBy: " > ").last
             ?? "오늘의 메뉴"
         return Decision(menu: menu, restaurant: restaurant)
+    }
+
+    private var situationPicker: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                ForEach(MealSituation.allCases) { situation in
+                    Button {
+                        mealSituationRaw = situation.rawValue
+                    } label: {
+                        Text(situation.rawValue)
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(selectedSituation == situation ? Color.mintInk : Color.charcoalText)
+                            .padding(.horizontal, 12)
+                            .frame(minHeight: 36)
+                            .background(
+                                Capsule().fill(selectedSituation == situation ? Color.selectionMint : Color.ivory)
+                            )
+                            .overlay(
+                                Capsule().stroke(selectedSituation == situation ? Color.accentRed.opacity(0.55) : Color.canvasLine,
+                                                 lineWidth: 1)
+                            )
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityAddTraits(selectedSituation == situation ? .isSelected : [])
+                }
+            }
+            .padding(.vertical, 2)
+        }
+        .accessibilityLabel("상황별 추천")
     }
 
     private func topCard(_ decision: Decision) -> some View {
@@ -2070,6 +2146,30 @@ struct StatusView<Actions: View>: View {
 extension StatusView where Actions == EmptyView {
     init(icon: String, title: String, message: String) {
         self.init(icon: icon, title: title, message: message) { EmptyView() }
+    }
+}
+
+private struct LocationRecoveryView: View {
+    let title: String
+    let message: String
+    let showsAppSettings: Bool
+    let onManualRegion: () -> Void
+    let onRetry: () -> Void
+    let onOpenAppSettings: () -> Void
+
+    var body: some View {
+        StatusView(icon: "location.slash", title: title, message: message) {
+            VStack(spacing: 10) {
+                Button("지역 직접 선택", action: onManualRegion)
+                    .buttonStyle(PrimaryButtonStyle())
+                Button("다시 시도", action: onRetry)
+                    .buttonStyle(SecondaryButtonStyle())
+                if showsAppSettings {
+                    Button("설정에서 위치 권한 켜기", action: onOpenAppSettings)
+                        .buttonStyle(SecondaryButtonStyle())
+                }
+            }
+        }
     }
 }
 
@@ -2367,7 +2467,13 @@ struct DecisionView: View {
     @State private var showMissingMapActions = false
     @State private var showMapProviderPicker = false
     @State private var showAppleMapFailure = false
+    @State private var pendingMapAction: MapAction = .directions
     @AppStorage("mapProvider") private var mapProviderRaw = MapProvider.naver.rawValue
+
+    private enum MapAction {
+        case directions
+        case menuSearch
+    }
 
     private var mapProvider: MapProvider {
 #if targetEnvironment(macCatalyst)
@@ -2384,8 +2490,9 @@ struct DecisionView: View {
         VStack(spacing: 0) {
             CompactPageHeader(icon: "checkmark.seal.fill", title: "오늘의 결정", onClose: onClose)
 
-            VStack(spacing: 11) {
-                HStack(spacing: 0) {
+            ScrollView {
+                VStack(spacing: 11) {
+                    HStack(spacing: 0) {
                     RestaurantImageView(photoURL: decision.restaurant.photoURL,
                                         photoKind: decision.restaurant.photoKind,
                                         photoProvider: decision.restaurant.photoProvider,
@@ -2512,6 +2619,32 @@ struct DecisionView: View {
                 }
                 .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color.canvasLine, lineWidth: 1))
 
+                Button(action: openMenuSearch) {
+                    HStack(spacing: 10) {
+                        ReferenceIconWell(systemName: "magnifyingglass", color: .accentRed, diameter: 34)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("주변에서 \(decision.menu) 찾기")
+                                .font(.subheadline.bold())
+                                .foregroundStyle(Color.charcoalText)
+                            Text("\(mapProvider.shortName)에서 \(regionLabel) 함께 검색")
+                                .font(.caption)
+                                .foregroundStyle(Color.charcoalSoft)
+                                .lineLimit(1)
+                        }
+                        Spacer(minLength: 8)
+                        Image(systemName: "arrow.up.right")
+                            .font(.caption.bold())
+                            .foregroundStyle(Color.charcoalSoft)
+                    }
+                    .padding(.horizontal, 14)
+                    .frame(height: 58)
+                    .background(Color.ivory)
+                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.canvasLine, lineWidth: 1))
+                }
+                .buttonStyle(.plain)
+                .accessibilityHint("선택한 지도 앱에서 메뉴와 지역을 검색합니다")
+
                 if recorded {
                     HStack(spacing: 10) {
                         ReferenceIconWell(systemName: "checkmark.seal.fill", color: .accentRed, diameter: 34)
@@ -2584,11 +2717,12 @@ struct DecisionView: View {
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                }
+                .padding(.horizontal, 28)
+                .padding(.vertical, 6)
+                .frame(maxWidth: 600, alignment: .top)
+                .frame(maxWidth: .infinity)
             }
-            .padding(.horizontal, 28)
-            .padding(.vertical, 6)
-            .frame(maxWidth: 600, maxHeight: .infinity, alignment: .top)
-            .frame(maxWidth: .infinity)
         }
         .background(Color.mintBase.ignoresSafeArea())
         .preferredColorScheme(.light)
@@ -2625,10 +2759,20 @@ struct DecisionView: View {
 
     /// 지도 카드와 결정 버튼이 함께 재사용하는 단일 네이티브 지도 실행 경로다.
     private func openMap() {
+        pendingMapAction = .directions
+        openMap(using: mapProvider)
+    }
+
+    private func openMenuSearch() {
+        pendingMapAction = .menuSearch
         openMap(using: mapProvider)
     }
 
     private func openMap(using provider: MapProvider) {
+        if pendingMapAction == .menuSearch {
+            openMenuSearch(using: provider)
+            return
+        }
         let restaurant = decision.restaurant
         if provider == .apple {
             let coordinate = CLLocationCoordinate2D(latitude: restaurant.latitude,
@@ -2670,6 +2814,55 @@ struct DecisionView: View {
     private func selectAndOpenMap(_ provider: MapProvider) {
         mapProviderRaw = provider.rawValue
         openMap(using: provider)
+    }
+
+    private func openMenuSearch(using provider: MapProvider) {
+        guard let url = menuSearchURL(for: provider) else {
+            if provider == .apple { showAppleMapFailure = true }
+            return
+        }
+        if provider != .apple && !UIApplication.shared.canOpenURL(url) {
+            presentMissingMapActions(for: provider)
+            return
+        }
+        UIApplication.shared.open(url, options: [:]) { opened in
+            guard !opened else { return }
+            Task { @MainActor in
+                if provider == .apple {
+                    showAppleMapFailure = true
+                } else {
+                    presentMissingMapActions(for: provider)
+                }
+            }
+        }
+    }
+
+    private func menuSearchURL(for provider: MapProvider) -> URL? {
+        let query = "\(decision.menu) \(regionLabel)"
+        var components = URLComponents()
+        switch provider {
+        case .apple:
+            components.scheme = "https"
+            components.host = "maps.apple.com"
+            components.path = "/"
+            components.queryItems = [URLQueryItem(name: "q", value: query)]
+        case .naver:
+            components.scheme = "nmap"
+            components.host = "search"
+            components.queryItems = [
+                URLQueryItem(name: "query", value: query),
+                URLQueryItem(name: "appname", value: Bundle.main.bundleIdentifier ?? "com.nasfinder.WhattoEat")
+            ]
+        case .kakao:
+            components.scheme = "kakaomap"
+            components.host = "search"
+            components.queryItems = [URLQueryItem(name: "q", value: query)]
+        case .google:
+            components.scheme = "comgooglemaps"
+            components.host = ""
+            components.queryItems = [URLQueryItem(name: "q", value: query)]
+        }
+        return components.url
     }
 
     private func nativeMapURL(for provider: MapProvider) -> URL? {

@@ -89,3 +89,130 @@ features:
         - global_recommend_unselected.center_tab.rendering
         - global_recommend_selected.center_tab.rendering
         - global_recommend_selected.center_tab.action
+  situation_category_filter:
+    purpose: Let the user optionally narrow recommendations by a locally evaluated meal situation without adding a paid API or blocking one-tap recommendation.
+    choices:
+      - 전체
+      - 든든한 식사
+      - 간단하게
+      - 패스트푸드
+      - 디저트·카페
+      - 회식·모임
+      - 야식
+    normal_result: Only restaurants with a server-curated menu or an exact locally recognized menu matching the selected situation remain in the recommendation pool.
+    algorithms_and_thresholds:
+      - Matching is deterministic and preserves source order before each platform's existing recommendation randomization.
+      - Broad unverified business categories such as 한식 are never used alone as evidence for a specific situation.
+      - If no restaurant has a verified matching menu, use the unfiltered eligible pool and explicitly disclose that fallback.
+    persistence_relaunch: The selected situation is stored locally and restored after relaunch; Apple uses AppStorage key mealSituation and Android uses SharedPreferences key situationFilter.
+    permissions_privacy_security:
+      - no new permission
+      - no new server request
+      - no paid API or scraping
+    gestures_accessibility:
+      - all seven choices remain individually selectable
+      - selected state is exposed to accessibility
+      - the existing immediate recommendation path remains available
+    supported_devices_layouts:
+      - iPhone, iPad, and Mac resizable layouts
+      - Android phone, tablet, and Google TV focus flow
+    implementations:
+      apple:
+        status: implemented_source_only
+        source_refs:
+          - WhattoEat/MenuPolicy.swift:3
+          - WhattoEat/ContentView.swift:1801
+      android:
+        status: implemented_source_and_unit_tested
+        source_refs:
+          - app/src/main/java/com/nasfinder/whattoeat/data/MenuPolicy.kt:31
+          - app/src/main/java/com/nasfinder/whattoeat/ui/screens/HomeScreen.kt:62
+          - app/src/main/java/com/nasfinder/whattoeat/ui/screens/ResultScreen.kt:128
+          - app/src/main/java/com/nasfinder/whattoeat/data/ChoiceStore.kt:129
+        tests:
+          - app/src/test/java/com/nasfinder/whattoeat/data/SituationFilterTest.kt
+          - app/src/test/java/com/nasfinder/whattoeat/data/ChoiceStoreTest.kt
+    parity_row_ids:
+      - home_situation_filter.chips.rendering
+      - result_situation_filter.chips.rendering
+      - result_situation_filter.fallback_notice
+      - recommendation_pool.situation_filtering.action
+  no_paid_api_map_search:
+    purpose: Open the configured map provider with the recommended menu and selected or resolved current region, without displaying ratings or reviews in the app.
+    normal_result: A visible action explains the destination, then opens the selected provider with a percent-encoded query ordered as menu followed by region; placeholder region labels are omitted where coordinates provide location context.
+    states:
+      - provider_available
+      - provider_missing
+      - apple_provider_on_android
+      - external_open_failed
+    permissions_privacy_security:
+      - no paid place API
+      - no review or rating retrieval
+      - no scraping
+      - no new SDK or server
+    platform_adaptations:
+      apple:
+        - Apple Maps uses maps.apple.com query URLs.
+        - Naver, Kakao, and Google use their registered iOS URL schemes and the existing missing-provider picker.
+      android:
+        - Naver and Kakao use their registered search schemes; Google uses a geo URI with current coordinates when available.
+        - Apple Maps has no Android application, so the existing AppleMapFailureAlertDialog is shown.
+    intentional_differences:
+      - platform: android
+        constraint: Apple Maps does not provide an Android app or supported native Android intent target.
+        closest_equivalent: Explain that Apple Maps cannot open; the user can select an installed Android map provider.
+        user_impact: Apple-provider searches require choosing another installed provider on Android.
+        review_trigger: Reassess if Apple publishes an officially supported Android Maps target.
+    implementations:
+      apple:
+        status: implemented_source_only
+        source_refs:
+          - WhattoEat/ContentView.swift:2425
+          - WhattoEat/ContentView.swift:2577
+          - WhattoEat/ContentView.swift:2775
+      android:
+        status: implemented_source_and_unit_tested
+        source_refs:
+          - app/src/main/java/com/nasfinder/whattoeat/data/MapProviderHelper.kt:100
+          - app/src/main/java/com/nasfinder/whattoeat/ui/screens/ResultScreen.kt:375
+          - app/src/main/java/com/nasfinder/whattoeat/viewmodel/MainViewModel.kt:706
+        tests:
+          - app/src/test/java/com/nasfinder/whattoeat/data/MapProviderMenuSearchTest.kt
+    parity_row_ids:
+      - result_map_search.recommended_menu.action
+      - result_map_search.cta.rendering
+  indoor_location_fallback:
+    purpose: Keep recommendations usable when native GPS/Wi-Fi/cellular positioning is slow or unavailable indoors.
+    states:
+      - fresh_location_resolved
+      - fresh_request_failed_or_timed_out_cache_reused
+      - fresh_request_failed_or_timed_out_no_usable_cache
+      - permission_denied_or_restricted
+    algorithms_and_thresholds:
+      - A location request times out after 12 seconds.
+      - On failure or timeout, reuse the OS-cached location only when it is at most 5 minutes old and has nonnegative horizontal accuracy.
+      - Without usable cache, make manual region selection the primary recovery action and also offer retry.
+      - When permission is denied or restricted, additionally offer a direct app-settings link.
+    permissions_privacy_security:
+      - Uses only each platform's standard combined location API; no private Wi-Fi scanning or new dependency.
+      - Cached location remains in the OS-managed in-memory cache and is not persisted by the app.
+    supported_devices_layouts:
+      - iPhone and iPad
+      - Android phone and tablet
+    implementations:
+      apple:
+        status: implemented_source
+        source_refs:
+          - WhattoEat/LocationManager.swift
+          - WhattoEat/ContentView.swift:LocationRecoveryView
+      android:
+        status: implemented_source_and_unit_tested
+        source_refs:
+          - app/src/main/java/com/nasfinder/whattoeat/data/LocationFallbackPolicy.kt
+          - app/src/main/java/com/nasfinder/whattoeat/data/LocationService.kt
+          - app/src/main/java/com/nasfinder/whattoeat/viewmodel/MainViewModel.kt
+          - app/src/main/java/com/nasfinder/whattoeat/ui/screens/ResultScreen.kt
+        tests:
+          - app/src/test/java/com/nasfinder/whattoeat/data/LocationFallbackPolicyTest.kt
+    parity_row_ids:
+      - location_fallback.indoor_recovery.action
