@@ -84,35 +84,72 @@ private extension Restaurant {
 // MARK: - 점심 알림
 
 /// 이 앱 기능 전용 로컬 알림. 서버 푸시가 아니며, 알림 문구도 실시간 데이터를 주장하지 않는다.
+@MainActor
 enum LunchReminder {
     static let identifier = "whattoeat.lunch.daily"
+    private static var schedulingTask: Task<Void, Never>?
+    private static let identifiers = [identifier] + (0..<60).map { "\(identifier).\($0)" }
 
     static func cancel() {
-        UNUserNotificationCenter.current()
-            .removePendingNotificationRequests(withIdentifiers: [identifier])
+        replaceSchedule(nil)
+    }
+
+    private static func replaceSchedule(_ operation: (@MainActor () async -> Void)?) {
+        let previous = schedulingTask
+        previous?.cancel()
+        schedulingTask = Task { @MainActor in
+            await previous?.value
+            guard !Task.isCancelled else { return }
+            UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: identifiers)
+            await operation?()
+        }
     }
 
     static func schedule(hour: Int, minute: Int, leadMinutes: Int,
-                         regionLabel: String, topMenu: String?) {
-        let total = (hour * 60 + minute - leadMinutes + 1440) % 1440
-        var components = DateComponents()
-        components.hour = total / 60
-        components.minute = total % 60
+                         excludeHolidays: Bool, regionLabel: String, topMenu: String?) {
+        replaceSchedule {
+            let content = UNMutableNotificationContent()
+            content.title = "곧 점심시간이에요"
+            if let menu = topMenu, !menu.isEmpty {
+                content.body = "\(regionLabel) 근처에서 마지막으로 본 추천 후보는 ‘\(menu)’였어요. 앱을 열면 주변 후보를 다시 찾아 드려요."
+            } else {
+                content.body = "\(regionLabel) 근처 점심 후보를 앱에서 찾아보세요."
+            }
+            content.sound = .default
+            let center = UNUserNotificationCenter.current()
+            if !excludeHolidays {
+                let total = (hour * 60 + minute - leadMinutes + 1440) % 1440
+                let components = DateComponents(hour: total / 60, minute: total % 60)
+                let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: true)
+                try? await center.add(UNNotificationRequest(identifier: identifier, content: content, trigger: trigger))
+                return
+            }
 
-        let content = UNMutableNotificationContent()
-        content.title = "곧 점심시간이에요"
-        if let menu = topMenu, !menu.isEmpty {
-            content.body = "\(regionLabel) 근처에서 마지막으로 본 추천 후보는 ‘\(menu)’였어요. 앱을 열면 주변 후보를 다시 찾아 드려요."
-        } else {
-            content.body = "\(regionLabel) 근처 점심 후보를 앱에서 찾아보세요."
+            var calendar = Calendar(identifier: .gregorian)
+            calendar.timeZone = .current
+            let now = Date()
+            let year = calendar.component(.year, from: now)
+            var holidays = await KoreanHolidayService.refreshedHolidayNames(for: year, calendar: calendar)
+            guard !Task.isCancelled else { return }
+            let nextYear = KoreanHolidayService.cachedHolidayNames(for: year + 1, calendar: calendar)
+            let knownYears = Set(([holidays.isEmpty ? nil : year, nextYear.isEmpty ? nil : year + 1]).compactMap { $0 })
+            holidays.merge(nextYear) { existing, _ in existing }
+            var count = 0
+            // iOS pending notification limit: replenish up to 60 reminders whenever opened.
+            for offset in 0..<370 {
+                guard !Task.isCancelled, count < 60 else { break }
+                guard let day = calendar.date(byAdding: .day, value: offset, to: calendar.startOfDay(for: now)),
+                      knownYears.contains(calendar.component(.year, from: day)),
+                      !calendar.isDateInWeekend(day), holidays[day] == nil,
+                      let lunch = calendar.date(bySettingHour: hour, minute: minute, second: 0, of: day),
+                      let fire = calendar.date(byAdding: .minute, value: -leadMinutes, to: lunch), fire > now,
+                      !calendar.isDateInWeekend(fire), holidays[calendar.startOfDay(for: fire)] == nil else { continue }
+                let components = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: fire)
+                let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: false)
+                try? await center.add(UNNotificationRequest(identifier: "\(identifier).\(count)", content: content, trigger: trigger))
+                count += 1
+            }
         }
-        content.sound = .default
-
-        let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: true)
-        let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
-        let center = UNUserNotificationCenter.current()
-        center.removePendingNotificationRequests(withIdentifiers: [identifier])
-        center.add(request)
     }
 }
 
@@ -180,7 +217,9 @@ struct ContentView: View {
     @AppStorage("manualLatitude") private var manualLatitude = 0.0
     @AppStorage("manualLongitude") private var manualLongitude = 0.0
     @AppStorage("lastTopMenu") private var lastTopMenu = ""
+    @AppStorage("mealSituation") private var mealSituationRaw = MealSituation.all.rawValue
     @AppStorage("lunchNotifyEnabled") private var lunchNotifyEnabled = false
+    @AppStorage("lunchExcludeHolidays") private var lunchExcludeHolidays = false
     @AppStorage("lunchHour") private var lunchHour = 12
     @AppStorage("lunchMinute") private var lunchMinute = 0
     @AppStorage("lunchLeadMinutes") private var lunchLeadMinutes = 5
@@ -252,6 +291,7 @@ struct ContentView: View {
                         page = .region
                     },
                     onRecommend: {
+                        mealSituationRaw = MealSituation.all.rawValue
                         if mode == .manual && !hasManualCoordinate {
                             page = .region
                         } else {
@@ -333,6 +373,7 @@ struct ContentView: View {
             // 시안의 첫 진입 상태와 동일하게 자동 위치를 기본 선택으로 보여 준다.
             locationModeRaw = LocationMode.auto.rawValue
             regionQuery = manualRegionText
+            refreshLunchReminder()
 #if DEBUG
             applyMatchupFixtureIfNeeded()
 #endif
@@ -388,6 +429,7 @@ struct ContentView: View {
             guard MatchupLaunch.state == nil else { return }
 #endif
             guard newValue == .active else { return }
+            refreshLunchReminder()
             guard page == .result else { return }
             switch phase {
             case .results, .empty: retry()
@@ -440,6 +482,7 @@ struct ContentView: View {
     }
 
     private func showRecommendations() {
+        mealSituationRaw = MealSituation.all.rawValue
         regionSearchFocused = false
         decision = nil
         if mode == .manual && !hasManualCoordinate {
@@ -742,6 +785,7 @@ struct ContentView: View {
         LunchReminder.schedule(hour: lunchHour,
                                minute: lunchMinute,
                                leadMinutes: lunchLeadMinutes,
+                               excludeHolidays: lunchExcludeHolidays,
                                regionLabel: activeRegionLabel,
                                topMenu: lastTopMenu.isEmpty ? nil : lastTopMenu)
     }
@@ -2925,6 +2969,7 @@ struct SettingsView: View {
 
     @AppStorage("mapProvider") private var mapProviderRaw = MapProvider.naver.rawValue
     @AppStorage("lunchNotifyEnabled") private var lunchNotifyEnabled = false
+    @AppStorage("lunchExcludeHolidays") private var lunchExcludeHolidays = false
     @AppStorage("lunchHour") private var lunchHour = 12
     @AppStorage("lunchMinute") private var lunchMinute = 0
     @AppStorage("lunchLeadMinutes") private var lunchLeadMinutes = 5
@@ -3046,8 +3091,15 @@ struct SettingsView: View {
                         Toggle("알림 받기", isOn: notifyToggleBinding)
                             .font(AppTypography.rowTitle)
                             .foregroundStyle(Color.charcoalText)
-                            .accessibilityHint("켜면 알림 권한을 요청하고, 매일 점심시간 전에 이 기기에서 알림을 보냅니다")
+                            .accessibilityHint("켜면 알림 권한을 요청하고, 선택한 휴일 설정에 따라 점심시간 전에 이 기기에서 알림을 보냅니다")
                         if lunchNotifyEnabled {
+                            Divider()
+                            Toggle("휴일 제외", isOn: $lunchExcludeHolidays)
+                                .font(AppTypography.rowTitle)
+                                .foregroundStyle(Color.charcoalText)
+                            Text("토·일요일과 한클립 달력의 한국 공휴일에는 알리지 않아요.\n휴일 제외 시 다음 60회까지 예약하며, 앱을 열 때 갱신해요. 공휴일 정보가 없는 연도는 예약하지 않아요.")
+                                .font(.caption)
+                                .foregroundStyle(Color.charcoalSoft)
                             Divider()
                             HStack(spacing: 8) {
                                 Text("점심시간")
@@ -3146,6 +3198,7 @@ struct SettingsView: View {
 #endif
         }
         .onChange(of: lunchNotifyEnabled) { _, _ in onReminderSettingsChanged() }
+        .onChange(of: lunchExcludeHolidays) { _, _ in onReminderSettingsChanged() }
         .onChange(of: lunchHour) { _, _ in onReminderSettingsChanged() }
         .onChange(of: lunchMinute) { _, _ in onReminderSettingsChanged() }
         .onChange(of: lunchLeadMinutes) { _, _ in onReminderSettingsChanged() }
