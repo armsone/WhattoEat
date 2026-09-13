@@ -19,6 +19,8 @@
 		A1B2C3D40000000000000110 /* MacDirectUpdateManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D40000000000000012 /* MacDirectUpdateManager.swift */; };
 		BAA000000000000000000001 = {isa = PBXBuildFile; fileRef = BAA000000000000000000002; };
 		BAA000000000000000000003 = {isa = PBXBuildFile; fileRef = BAA000000000000000000004; };
+		BAA000000000000000000005 /* PublicDiningPriority.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAA000000000000000000006 /* PublicDiningPriority.swift */; };
+		BAA000000000000000000007 /* PublicDiningCatalog.json in Resources */ = {isa = PBXBuildFile; fileRef = BAA000000000000000000008 /* PublicDiningCatalog.json */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -36,6 +38,8 @@
 		A1B2C3D40000000000000012 /* MacDirectUpdateManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacDirectUpdateManager.swift; sourceTree = "<group>"; };
 		BAA000000000000000000002 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KoreanHolidayService.swift; sourceTree = "<group>"; };
 		BAA000000000000000000004 = {isa = PBXFileReference; lastKnownFileType = text.json; path = KoreanHolidays.json; sourceTree = "<group>"; };
+		BAA000000000000000000006 /* PublicDiningPriority.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PublicDiningPriority.swift; sourceTree = "<group>"; };
+		BAA000000000000000000008 /* PublicDiningCatalog.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = PublicDiningCatalog.json; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -64,6 +68,8 @@
 				A1B2C3D40000000000000002 /* ContentView.swift */,
 				BAA000000000000000000002,
 				BAA000000000000000000004,
+				BAA000000000000000000006 /* PublicDiningPriority.swift */,
+				BAA000000000000000000008 /* PublicDiningCatalog.json */,
 				A1B2C3D40000000000000003 /* Models.swift */,
 				A1B2C3D40000000000000004 /* APIClient.swift */,
 				A1B2C3D40000000000000005 /* LocationManager.swift */,
@@ -146,6 +152,7 @@
 			files = (
 				A1B2C3D40000000000000109 /* Assets.xcassets in Resources */,
 				BAA000000000000000000003,
+				BAA000000000000000000007 /* PublicDiningCatalog.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -159,6 +166,7 @@
 				A1B2C3D40000000000000101 /* WhattoEatApp.swift in Sources */,
 				A1B2C3D40000000000000102 /* ContentView.swift in Sources */,
 				BAA000000000000000000001,
+				BAA000000000000000000005 /* PublicDiningPriority.swift in Sources */,
 				A1B2C3D40000000000000103 /* Models.swift in Sources */,
 				A1B2C3D40000000000000104 /* APIClient.swift in Sources */,
 				A1B2C3D40000000000000105 /* LocationManager.swift in Sources */,
@@ -235,8 +243,8 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = WhattoEat/WhattoEat.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 202609051202;
-				DISPLAY_BUILD_NUMBER = 202609051202;
+				CURRENT_PROJECT_VERSION = 202609132101;
+				DISPLAY_BUILD_NUMBER = 202609132101;
 				DEVELOPMENT_TEAM = T7B4EPLHPK;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -246,7 +254,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.4.4;
+				MARKETING_VERSION = 0.5.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.nasfinder.WhattoEat;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTS_MACCATALYST = YES;
@@ -263,8 +271,8 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = WhattoEat/WhattoEat.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 202609051202;
-				DISPLAY_BUILD_NUMBER = 202609051202;
+				CURRENT_PROJECT_VERSION = 202609132101;
+				DISPLAY_BUILD_NUMBER = 202609132101;
 				DEVELOPMENT_TEAM = T7B4EPLHPK;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -274,7 +282,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.4.4;
+				MARKETING_VERSION = 0.5.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.nasfinder.WhattoEat;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTS_MACCATALYST = YES;

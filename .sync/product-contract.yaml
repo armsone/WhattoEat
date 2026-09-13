@@ -216,3 +216,14 @@ features:
           - app/src/test/java/com/nasfinder/whattoeat/data/LocationFallbackPolicyTest.kt
     parity_row_ids:
       - location_fallback.indoor_recovery.action
+
+public_dining_priority:
+  policy: public_agency_meal_record_at_least_once_within_18_calendar_months
+  department_threshold: none
+  ordering: matching_restaurants_by_distance_then_existing_shuffled_order
+  candidate_count: preserve_existing_13
+  matching: normalized_source_name_variants_and_exact_address_tokens
+  catalog: shared_PublicDiningCatalog_json
+  source: official_expense_records_and_official_business_addresses
+  unsupported_catalog: preserve_existing_recommendations
+  runtime_visual_parity: not_yet_verified

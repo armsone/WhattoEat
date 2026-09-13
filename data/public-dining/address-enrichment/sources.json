@@ -1,0 +1,260 @@
+{
+  "businessSourceURL": "https://www.data.go.kr/data/15083033/fileData.do",
+  "businessZIP_SHA256": "57aa361544108ff4fc73334f87d2ced61e41fe8638dd70bcd842930f865d2386",
+  "institutions": [
+    {
+      "institution": "대구광역시",
+      "region": "대구",
+      "sourceURL": "https://www.daegu.go.kr/",
+      "address": "대구광역시 중구 공평로 88",
+      "latitude": 35.871946204658215,
+      "longitude": 128.60067723928748,
+      "coordinateMethod": "nearby-road-address-search-center",
+      "coordinateEvidenceIDs": [
+        "MA010120220802999173",
+        "MA010120220811933384",
+        "MA010120220806879361",
+        "MA010120220813351390",
+        "MA010120220804801076",
+        "MA010120220810313368",
+        "MA010120220812083819",
+        "MA010120220805260563",
+        "MA0101202305A0010035",
+        "MA0101202406A0185376",
+        "MA0101202411A0103023",
+        "MA0101202503A0033829",
+        "MA0101202504A0040639",
+        "MA0101202603A0048599",
+        "MA0101202603A0039674"
+      ]
+    },
+    {
+      "institution": "울산광역시",
+      "region": "울산",
+      "sourceURL": "https://www.ulsan.go.kr/u/rep/transfer/chief/list.ulsan?mId=001003002005000000&useDe=2026-08-06",
+      "address": "울산광역시 남구 중앙로 201",
+      "latitude": 35.5379477875026,
+      "longitude": 129.311258496658,
+      "coordinateMethod": "same-official-road-address",
+      "coordinateEvidenceIDs": [
+        "MA010120220805651487"
+      ]
+    },
+    {
+      "institution": "경상북도의회",
+      "region": "경북",
+      "sourceURL": "https://council.gb.go.kr/",
+      "address": "경상북도 안동시 풍천면 도청대로 455",
+      "latitude": 36.5748463841741,
+      "longitude": 128.506091959868,
+      "coordinateMethod": "same-official-road-address",
+      "coordinateEvidenceIDs": [
+        "MA010120220809092982"
+      ]
+    },
+    {
+      "institution": "강원특별자치도",
+      "region": "강원",
+      "sourceURL": "https://state.gwd.go.kr/portal/administration/opendata/propulsionCost/director?articleSeq=271907&mode=view",
+      "address": "강원특별자치도 춘천시 중앙로 1",
+      "latitude": 37.8855693055812,
+      "longitude": 127.731527436202,
+      "coordinateMethod": "same-official-road-address",
+      "coordinateEvidenceIDs": [
+        "MA010120220807066128"
+      ]
+    },
+    {
+      "institution": "세종특별자치시",
+      "region": "세종",
+      "sourceURL": "https://www.sejong.go.kr/bbs/R0091/view.do?nttId=B000000154062Yz3qH9j&mno=sub01_0301",
+      "address": "세종특별자치시 한누리대로 2130",
+      "latitude": 36.47846783290374,
+      "longitude": 127.28948421496726,
+      "coordinateMethod": "nearby-road-address-search-center",
+      "coordinateEvidenceIDs": [
+        "MA010120220805885378",
+        "MA010120220805144776",
+        "MA010120220811951736",
+        "MA010120220808015139",
+        "MA010120220811911191",
+        "MA010120220810165332",
+        "MA010120220806583526",
+        "MA010120220811938860",
+        "MA010120220803385922",
+        "MA0101202212A0031701",
+        "MA0101202411A0063926",
+        "MA0101202412A0009754",
+        "MA0101202508A0009360",
+        "MA0101202511A0031117",
+        "MA0101202601A0041390",
+        "MA0101202604A0047450",
+        "MA0101202604A0017206",
+        "MA0101202601A0021285",
+        "MA0101202604A0019161"
+      ]
+    },
+    {
+      "institution": "대전광역시",
+      "region": "대전",
+      "sourceURL": "https://www.daejeon.go.kr/drh/open/drhDataOpen/drhDataOpenBoardArticleView.do?boardSeq=694&articleSeq=14818",
+      "address": "대전광역시 서구 둔산로 100",
+      "latitude": 36.3503863476033,
+      "longitude": 127.384633569606,
+      "coordinateMethod": "same-official-road-address",
+      "coordinateEvidenceIDs": [
+        "MA010120220806249971",
+        "MA0101202411A0173143"
+      ]
+    },
+    {
+      "institution": "충청북도",
+      "region": "충북",
+      "sourceURL": "https://www.chungbuk.go.kr/www/selectBbsNttView.do?key=211&bbsNo=2&nttNo=441295",
+      "address": "충청북도 청주시 상당구 상당로 82",
+      "latitude": 36.6353889534668,
+      "longitude": 127.49142845072201,
+      "coordinateMethod": "same-official-road-address",
+      "coordinateEvidenceIDs": [
+        "MA010120220803359182",
+        "MA0101202505A0017516",
+        "MA0106202507A0377669"
+      ]
+    },
+    {
+      "institution": "인천광역시",
+      "region": "인천",
+      "sourceURL": "https://www.incheon.go.kr/open/OPEN010305/3087241",
+      "address": "인천광역시 남동구 정각로 29",
+      "latitude": 37.4560494875008,
+      "longitude": 126.705246591082,
+      "coordinateMethod": "same-official-road-address",
+      "coordinateEvidenceIDs": [
+        "MA010120220804739784"
+      ]
+    },
+    {
+      "institution": "제주특별자치도",
+      "region": "제주",
+      "sourceURL": "https://www.jeju.go.kr/open/open/work/work2.htm?category=1409&act=view&seq=2033845",
+      "address": "제주특별자치도 제주시 문연로 6",
+      "latitude": 33.4882126289508,
+      "longitude": 126.497727487154,
+      "coordinateMethod": "same-official-road-address",
+      "coordinateEvidenceIDs": [
+        "MA010120220807066110",
+        "MA0101202507A0016821"
+      ]
+    },
+    {
+      "institution": "전북특별자치도",
+      "region": "전북",
+      "sourceURL": "https://www.jeonbuk.go.kr/board/view.jeonbuk?boardId=BBS_0000029&menuCd=DOM_000000103005000000&dataSid=670212",
+      "address": "전북특별자치도 전주시 완산구 효자로 225",
+      "latitude": 35.8194452405776,
+      "longitude": 127.106375230875,
+      "coordinateMethod": "same-official-road-address",
+      "coordinateEvidenceIDs": [
+        "MA0101202406A0185322"
+      ]
+    },
+    {
+      "institution": "전라남도",
+      "region": "전남",
+      "sourceURL": "https://www.jeonnam.go.kr/M486735/boardView.do?seq=1944933&menuId=jeonnam0302050300&boardId=M486735",
+      "address": "전남광주통합특별시 무안군 삼향읍 오룡길 1",
+      "latitude": 34.8174927153126,
+      "longitude": 126.465422036514,
+      "coordinateMethod": "same-official-road-address",
+      "coordinateEvidenceIDs": [
+        "MA0101202308A0091154"
+      ]
+    },
+    {
+      "institution": "광주광역시 서구",
+      "region": "광주",
+      "sourceURL": "https://www.seogu.gwangju.kr/menu.es?mid=a10518030100&nPage=1",
+      "address": "전남광주통합특별시 서구 경열로 33",
+      "latitude": 35.15131203137677,
+      "longitude": 126.88942764440567,
+      "coordinateMethod": "nearby-road-address-search-center",
+      "coordinateEvidenceIDs": [
+        "MA0101202406A0443235",
+        "MA010120220809927140",
+        "MA0101202501A0066722",
+        "MA010120220809986542",
+        "MA010120220807618273",
+        "MA010120220814013527"
+      ]
+    },
+    {
+      "institution": "경기도",
+      "region": "경기",
+      "address": "경기도 수원시 영통구 도청로 30",
+      "sourceURL": "https://www.gg.go.kr/contents/contents.do?ciIdx=1377&menuId=3187",
+      "latitude": 37.2879309621962,
+      "longitude": 127.054006253198,
+      "coordinateMethod": "same-official-road-address",
+      "coordinateEvidenceIDs": [
+        "MA0101202302A0102801",
+        "MA0101202505A0001017"
+      ]
+    },
+    {
+      "institution": "충청남도",
+      "region": "충남",
+      "address": "충청남도 홍성군 홍북읍 충남대로 21",
+      "sourceURL": "https://tour.chungnam.go.kr/thumbnail/BBSMSTR_000000000197/BBS_202507210303440611.PDF",
+      "latitude": 36.6591307463284,
+      "longitude": 126.672963939238,
+      "coordinateMethod": "same-official-road-address",
+      "coordinateEvidenceIDs": [
+        "MA010120220806815172",
+        "MA0106202602A1817293"
+      ]
+    },
+    {
+      "institution": "경상남도",
+      "region": "경남",
+      "address": "경상남도 창원시 의창구 중앙대로 300",
+      "sourceURL": "https://www.gyeongnam.go.kr/",
+      "latitude": 35.2378059691854,
+      "longitude": 128.691945881048,
+      "coordinateMethod": "same-official-road-address",
+      "coordinateEvidenceIDs": [
+        "MA010120220803724893",
+        "MA010120220804614817",
+        "MA010120220810981414"
+      ]
+    },
+    {
+      "institution": "부산광역시",
+      "region": "부산",
+      "address": "부산광역시 연제구 중앙대로 1001",
+      "sourceURL": "https://www.busan.go.kr/bhbusanjingu",
+      "latitude": 35.1799262672016,
+      "longitude": 129.07509458317,
+      "coordinateMethod": "same-official-road-address",
+      "coordinateEvidenceIDs": [
+        "MA010120220811659217",
+        "MA010120220801845469",
+        "MA0101202303A0073904"
+      ]
+    },
+    {
+      "institution": "서울특별시",
+      "region": "서울",
+      "address": "서울특별시 중구 세종대로 110",
+      "sourceURL": "https://www.seoul.go.kr/seoul/map.do",
+      "latitude": 37.5663194926767,
+      "longitude": 126.977826117292,
+      "coordinateMethod": "same-official-road-address",
+      "coordinateEvidenceIDs": [
+        "MA010120220810438526",
+        "MA010120220800167759"
+      ]
+    }
+  ],
+  "asOf": "2026-09-13",
+  "months": 18
+}

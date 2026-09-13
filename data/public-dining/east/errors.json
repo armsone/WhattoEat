@@ -1,0 +1,226 @@
+[
+  {
+    "level": "WARNING",
+    "message": "File b_21670.xlsx is Fasoo DRM encrypted; skipping."
+  },
+  {
+    "level": "WARNING",
+    "message": "File b_21627.xlsx is Fasoo DRM encrypted; skipping."
+  },
+  {
+    "level": "WARNING",
+    "message": "File b_21666.xlsx is Fasoo DRM encrypted; skipping."
+  },
+  {
+    "level": "WARNING",
+    "message": "File b_21943.xlsx is Fasoo DRM encrypted; skipping."
+  },
+  {
+    "level": "WARNING",
+    "message": "File b_21851.xlsx is Fasoo DRM encrypted; skipping."
+  },
+  {
+    "level": "WARNING",
+    "message": "File b_21661.xlsx is Fasoo DRM encrypted; skipping."
+  },
+  {
+    "level": "WARNING",
+    "message": "File b_21749.xlsx is Fasoo DRM encrypted; skipping."
+  },
+  {
+    "level": "WARNING",
+    "message": "File b_21564.xlsx is Fasoo DRM encrypted; skipping."
+  },
+  {
+    "level": "WARNING",
+    "message": "File b_21728.xlsx is Fasoo DRM encrypted; skipping."
+  },
+  {
+    "level": "WARNING",
+    "message": "File b_21568.xlsx is Fasoo DRM encrypted; skipping."
+  },
+  {
+    "level": "WARNING",
+    "message": "File b_21969.xlsx is Fasoo DRM encrypted; skipping."
+  },
+  {
+    "level": "WARNING",
+    "message": "File b_21656.xlsx is Fasoo DRM encrypted; skipping."
+  },
+  {
+    "level": "WARNING",
+    "message": "File b_21565.xlsx is Fasoo DRM encrypted; skipping."
+  },
+  {
+    "level": "WARNING",
+    "message": "File b_21573.xlsx is Fasoo DRM encrypted; skipping."
+  },
+  {
+    "level": "WARNING",
+    "message": "File b_21748.xlsx is Fasoo DRM encrypted; skipping."
+  },
+  {
+    "level": "WARNING",
+    "message": "File b_21927.xlsx is Fasoo DRM encrypted; skipping."
+  },
+  {
+    "level": "WARNING",
+    "message": "openpyxl failed on b_21931.xlsx (<class 'openpyxl.styles.named_styles._NamedCellStyle'>.name should be <class 'str'> but value is <class 'NoneType'>); falling back to standard zip XML reader."
+  },
+  {
+    "level": "WARNING",
+    "message": "File b_21751.xlsx is Fasoo DRM encrypted; skipping."
+  },
+  {
+    "level": "WARNING",
+    "message": "File b_21747.xlsx is Fasoo DRM encrypted; skipping."
+  },
+  {
+    "level": "WARNING",
+    "message": "File b_21854.xlsx is Fasoo DRM encrypted; skipping."
+  },
+  {
+    "level": "WARNING",
+    "message": "File b_21571.xlsx is Fasoo DRM encrypted; skipping."
+  },
+  {
+    "level": "WARNING",
+    "message": "File b_21583.xlsx is Fasoo DRM encrypted; skipping."
+  },
+  {
+    "level": "WARNING",
+    "message": "File b_21917.xlsx is Fasoo DRM encrypted; skipping."
+  },
+  {
+    "level": "WARNING",
+    "message": "File b_21669.xlsx is Fasoo DRM encrypted; skipping."
+  },
+  {
+    "level": "WARNING",
+    "message": "File b_21921.xlsx is Fasoo DRM encrypted; skipping."
+  },
+  {
+    "level": "WARNING",
+    "message": "File b_21937.xlsx is Fasoo DRM encrypted; skipping."
+  },
+  {
+    "level": "WARNING",
+    "message": "File b_21598.xlsx is Fasoo DRM encrypted; skipping."
+  },
+  {
+    "level": "WARNING",
+    "message": "File b_21561.xlsx is Fasoo DRM encrypted; skipping."
+  },
+  {
+    "level": "WARNING",
+    "message": "File b_21594.xlsx is Fasoo DRM encrypted; skipping."
+  },
+  {
+    "level": "WARNING",
+    "message": "File b_21644.xlsx is Fasoo DRM encrypted; skipping."
+  },
+  {
+    "level": "WARNING",
+    "message": "File busan_21969.xlsx is Fasoo DRM encrypted; skipping."
+  },
+  {
+    "level": "WARNING",
+    "message": "openpyxl failed on daegu_FILE_000000000708480_0.xlsx (list index out of range); falling back to standard zip XML reader."
+  },
+  {
+    "level": "WARNING",
+    "message": "openpyxl failed on daegu_FILE_000000000715780_0.xlsx (list index out of range); falling back to standard zip XML reader."
+  },
+  {
+    "level": "WARNING",
+    "message": "openpyxl failed on daegu_FILE_000000000708772_0.xlsx (list index out of range); falling back to standard zip XML reader."
+  },
+  {
+    "level": "WARNING",
+    "message": "openpyxl failed on daegu_FILE_000000000708500_0.xlsx (list index out of range); falling back to standard zip XML reader."
+  },
+  {
+    "level": "WARNING",
+    "message": "openpyxl failed on daegu_FILE_000000000715730_1.xlsx (list index out of range); falling back to standard zip XML reader."
+  },
+  {
+    "level": "WARNING",
+    "message": "openpyxl failed on daegu_FILE_000000000708910_0.xlsx (list index out of range); falling back to standard zip XML reader."
+  },
+  {
+    "level": "WARNING",
+    "message": "openpyxl failed on daegu_FILE_000000000712072_0.xlsx (list index out of range); falling back to standard zip XML reader."
+  },
+  {
+    "level": "WARNING",
+    "message": "openpyxl failed on daegu_FILE_000000000711362_0.xlsx (list index out of range); falling back to standard zip XML reader."
+  },
+  {
+    "level": "WARNING",
+    "message": "openpyxl failed on gbc_E44FA21DE8FA9D3A2B4DCDE41432F208_9CFC0735BCEAE623354A01377DEE38C0.xlsx (list index out of range); falling back to standard zip XML reader."
+  },
+  {
+    "level": "WARNING",
+    "message": "openpyxl failed on gbc_7A9A59E559A2AD9D9A44A8109691E7A0_6CB030397E714F71DBE8BE4A259EC2C5.xlsx (list index out of range); falling back to standard zip XML reader."
+  },
+  {
+    "level": "WARNING",
+    "message": "openpyxl failed on gbc_8F4BC55CA8385C2E06DA7FD7D206E08F_1586FA83674F5D1FB41DB0F49591F7A3.xlsx (list index out of range); falling back to standard zip XML reader."
+  },
+  {
+    "level": "WARNING",
+    "message": "openpyxl failed on gbc_1C7F714CF61C243D515A9B3A022DC17C_425A336851C782687016B2C1E78A0443.xlsx (list index out of range); falling back to standard zip XML reader."
+  },
+  {
+    "level": "WARNING",
+    "message": "openpyxl failed on gbc_58EB1456BA3916FAA8068200F87689BC_3DA7AD08BEA5A63306894E8841B15DC2.xlsx (list index out of range); falling back to standard zip XML reader."
+  },
+  {
+    "level": "WARNING",
+    "message": "openpyxl failed on gbc_DE8F0B59AFD082F645005C1590982BB0_C90524207CD05388945A70061DF6E704.xlsx (list index out of range); falling back to standard zip XML reader."
+  },
+  {
+    "level": "WARNING",
+    "message": "openpyxl failed on gbc_C1855C6545682DA51B777BC18AB44E58_DB5B929BF00154E4724EFCF85B2AD034.xlsx (list index out of range); falling back to standard zip XML reader."
+  },
+  {
+    "level": "WARNING",
+    "message": "openpyxl failed on gn_5453967.xlsx (list index out of range); falling back to standard zip XML reader."
+  },
+  {
+    "level": "WARNING",
+    "message": "Unsupported file format signature for gw_269662.xlsx"
+  },
+  {
+    "level": "WARNING",
+    "message": "Unsupported file format signature for gw_272018.xlsx"
+  },
+  {
+    "level": "WARNING",
+    "message": "Unsupported file format signature for gw_271438.xlsx"
+  },
+  {
+    "level": "WARNING",
+    "message": "Unsupported file format signature for gw_268770.xlsx"
+  },
+  {
+    "level": "WARNING",
+    "message": "Unsupported file format signature for gw_270259.xlsx"
+  },
+  {
+    "level": "WARNING",
+    "message": "Unsupported file format signature for gw_270853.xlsx"
+  },
+  {
+    "level": "WARNING",
+    "message": "Unsupported file format signature for gw_269135.xlsx"
+  },
+  {
+    "level": "WARNING",
+    "message": "openpyxl failed on gw_268960.pdf (openpyxl does not support .pdf file format, please check you can open it with Excel first. Supported formats are: .xlsx,.xlsm,.xltx,.xltm); falling back to standard zip XML reader."
+  },
+  {
+    "level": "WARNING",
+    "message": "openpyxl failed on gw_270465.pdf (openpyxl does not support .pdf file format, please check you can open it with Excel first. Supported formats are: .xlsx,.xlsm,.xltx,.xltm); falling back to standard zip XML reader."
+  }
+]

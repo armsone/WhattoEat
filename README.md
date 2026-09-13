@@ -17,8 +17,26 @@
 
 - **앱**: SwiftUI, iOS/iPadOS 17.0+, iPhone·iPad·Mac Catalyst 지원, 서드파티 의존성 없음. Kakao 키는 앱 어디에도 없습니다.
 - **업데이트**: iPhone·iPad TestFlight는 시스템 관리 경로를 유지하고, Mac 직접 배포판만 공식 GitHub Releases의 DMG를 자동 또는 수동으로 확인·다운로드해 SHA-256 검증 후 엽니다.
-- **서버**: `server/server.js`와 `server/photos.js`. 1~4페이지를 `is_end` 또는 고유 place id 13개까지 수집·중복 제거 후 안정된 JSON 계약으로 반환. 앱은 이 13곳 중 4곳을 무작위로 추천한다. 업스트림 타임아웃 5초, `/health` 제공, `PORT`에 바인딩.
+- **서버**: `server/server.js`와 `server/photos.js`. 1~4페이지를 `is_end` 또는 고유 place id 13개까지 수집·중복 제거 후 안정된 JSON 계약으로 반환. 앱은 이 13곳 전체를 보여 주되, 공공기관 이용 기록이 확인된 곳을 거리순으로 앞에 두고 나머지는 무작위 순서로 표시한다. 업스트림 타임아웃 5초, `/health` 제공, `PORT`에 바인딩.
 - **메뉴 정책** (`WhattoEat/MenuPolicy.swift`): 투명한 정확 토큰 화이트리스트(김밥, 냉면, 돈가스/돈까스, 초밥, 국밥, 설렁탕, 칼국수, 햄버거, 피자, 치킨, 떡볶이, 샤브샤브 등)가 가게 이름 또는 최종 카테고리 텍스트에 있을 때, 또는 서버의 운영자 확인 데이터(`curated-menus.json`)가 있을 때만 '대표 메뉴'로 표시합니다. '한식' 같은 넓은 분류를 특정 요리로 바꾸지 않으며, 근거 없는 음식점은 "대표 메뉴 정보 없음"으로 정직하게 표시합니다.
+
+- **공공기관 이용 기록 우선 표시** (`WhattoEat/PublicDiningPriority.swift`): 앱 번들의 `WhattoEat/PublicDiningCatalog.json`에 있는 식당 중 정규화한 식당명과 주소가 카카오 검색 결과와 정확히 일치하는 곳을 추천 목록 앞쪽에 거리순으로 둡니다. 카드에는 작은 `공공기관 이용 기록` 표시가 붙고, 결정 화면에서 공식 원문·최근 결제일·이용 부서 수·지역별 수집 범위를 확인할 수 있습니다.
+
+## 공공기관 이용 기록 우선 표시
+
+- 기존 Kakao 검색 서버는 그대로 필요하지만, 이 기능을 위한 추가 서버나 새 API는 없습니다. 카탈로그는 앱 번들에 포함된 JSON 파일이며 원자료를 어디에도 업로드하지 않습니다.
+- 카탈로그는 공공기관이 공개한 결제 내역 원자료를 이 저장소에서 직접 집계한 것입니다. 다른 서비스(예: ‘그냥여기’)의 명단을 가져온 것이 아닙니다.
+- 서울을 포함한 17개 지역 원자료를 최근 18개월 기준으로 재집계하며, 누락 주소는 기관 주변의 공식 사업장 자료로 검색해 보완합니다.
+- 실제 17개 지역의 확보 상태(`collected`, `empty`, `no-eligible-restaurant`, `missing`)와 수집 기간·식당 수는 카탈로그 최상위 메타데이터(`nationalCoverage`, `regions`) 및 식당별 `coverageDescription`을 기준으로 동적으로 반영됩니다. 앱은 이 값을 그대로 보여 주고 별도의 숫자를 추정하지 않으며, 미확보(`missing`) 권역이 있는 경우 전국 완료로 보지 않고 확보된 지역의 기록만 선별 반영합니다.
+- 전국 수집 및 통합 명령:
+  ```bash
+  python3 tools/merge_public_dining_catalog.py                      # 기본 카탈로그 통합 생성 (WhattoEat/PublicDiningCatalog.json)
+  python3 tools/merge_public_dining_catalog.py --report R.md        # 지역별 17개 지역 현황 표 파일 출력
+  ```
+- 우선 표시 조건: 정규화한 식당명이 같고, 도로명 또는 지번 주소가 같은 형식끼리 토큰 단위로 일치해야 합니다(건물 번호 일부만 같은 경우나 도로명·지번 혼동은 불일치하며, 광역 지명이 다르면 절대 일치하지 않아 타 지역 동명·하이픈 번호 충돌을 방지합니다). 카탈로그 후보가 둘 이상 겹치면 미확정으로 두고 우선하지 않습니다.
+- 자격 조건: 공공기관의 식사 이용 기록 1건 이상, 마지막 결제일이 앱 실행일 기준 최근 18개월 이내. 부서 수에 비례한 점수나 등급은 없습니다. 원자료의 집계 기간은 카탈로그에 명시하며, 앱은 실행일 기준으로 오래된 기록을 추가로 제외합니다.
+- 파일이 없거나, `schemaVersion`이 1이 아니거나, 항목이 비어 있거나 형식이 잘못되면 기존 추천 순서로 그대로 동작합니다. 일치하는 식당이 없는 지역도 기존과 같습니다.
+- 이 표시는 맛·안전·현재 영업 여부를 뜻하지 않습니다. 서울 단일 수집 계약은 [docs/public-dining-data.md](docs/public-dining-data.md), 전국 통합 정책과 데이터 계약은 [docs/public-dining-national.md](docs/public-dining-national.md)를 참고하세요.
 
 ## 사용자 변경
 - 하단 추천 버튼은 가방 아이콘 표식으로 표시되며, 선택 시 밝은 원형(흰색 텍스트)과 아래 빨간 막대로만 강조됩니다.
@@ -28,6 +46,7 @@
 - 카카오 로컬 API의 이 엔드포인트는 **메뉴, 가격, 판매 인기, 평점, 현재 영업 여부를 제공하지 않습니다.** 앱의 '대표 메뉴'는 위 정책에 따른 추정 근거가 있는 항목일 뿐 실제 판매를 보장하지 않습니다.
 - **폐업·휴업 필터링은 구현되어 있지 않습니다.** 실제 방문 전 지도 앱에서 영업 여부를 확인하도록 앱 내에 안내합니다.
 - 순위는 "이 기기에서 많이 고른 메뉴"일 뿐 실제 인기와 무관합니다.
+- '공공기관 이용 기록'은 공개 결제 내역에 이름·주소가 같은 식당이 있다는 뜻일 뿐, 맛·안전·현재 영업 여부를 보장하지 않습니다.
 - 이 저장소는 실제 Kakao API 키 없이 작성되었으므로 **실 API 호출 검증은 수행되지 않았습니다.** 계약은 공식 문서 기준입니다.
 
 ## 개인정보 / 데이터 흐름
@@ -100,6 +119,12 @@ curl "http://localhost:8080/api/restaurants?latitude=37.5665&longitude=126.9780"
 
 - `WhattoEat.xcodeproj/` — Xcode 프로젝트 (iOS 17.0+, 버전 0.4.2, 빌드 `202608271840`, 번들 ID `com.nasfinder.WhattoEat`)
 - `WhattoEat/` — SwiftUI 소스, Info.plist, 에셋
+- `WhattoEat/PublicDiningPriority.swift` — 공공기관 이용 기록 카탈로그 로드·검증·전국 주소 일치 판정·우선 정렬
+- `WhattoEat/PublicDiningCatalog.json` — 앱 번들에 포함되는 공공기관 이용 기록 카탈로그
+- `tools/build_public_dining_catalog.py` — 서울 단일 공공기관 식당 카탈로그 수집기
+- `tools/merge_public_dining_catalog.py` — 전국 17개 지역 공공기관 식당 기록 통합 수집기
+- `docs/public-dining-data.md` — 서울 카탈로그 데이터 계약과 수집 절차
+- `docs/public-dining-national.md` — 전국 공공기관 식당 기록 통합 정책 및 인터페이스 규격
 - `Config/API.xcconfig.example` — 백엔드 주소 xcconfig 예시(선택)
 - `server/server.js` — Node 20 표준 라이브러리 참조 서버
 - `server/curated-menus.example.json` — 운영자 확인 메뉴 예시

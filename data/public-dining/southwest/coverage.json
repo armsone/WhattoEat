@@ -1,0 +1,153 @@
+{
+  "shard": "southwest",
+  "status": "completed",
+  "generatedAt": "2026-09-13T20:38:49+09:00",
+  "rules": {
+    "minPublicMealRecords": 1,
+    "departmentRequired": false,
+    "freshMonths": 18,
+    "lookbackMonths": 18,
+    "freshCutoffDate": "2025-03-13",
+    "lookbackCutoffDate": "2025-03-13",
+    "maxPages": 30
+  },
+  "byRegion": {
+    "광주": {
+      "region": "광주",
+      "status": "completed",
+      "institutions": [
+        "광산구청",
+        "광주광역시 서구",
+        "전남광주통합특별시"
+      ],
+      "period": {
+        "start": "2025-03-13",
+        "end": "2026-08-31"
+      },
+      "rawRowCount": 7751,
+      "funnel": {
+        "datedPaymentRows": 7751,
+        "mealRows": 6544,
+        "addressNameNotFound": 2034,
+        "addressMatchedRows": 3023,
+        "addressAmbiguousOrDistrictMismatch": 778
+      },
+      "extractedMealAddressRows": 3023,
+      "acceptedRowCount": 1380,
+      "candidatePlaceCount": 489,
+      "eligiblePlaceCount": 489,
+      "sourceURLs": [
+        "https://www.gwangsan.go.kr/contentsView.do?pageId=www159",
+        "https://www.seogu.gwangju.kr/menu.es?mid=a10518030100",
+        "https://www.jeonnam-gwangju.go.kr/boardList.do?boardId=JG_0000000018&pageId=jngj50"
+      ],
+      "coverageDescription": "광주 지역 공공기관 3곳의 공식 업무추진비 공개자료에서 추출된 결제 내역 3023건 중 검증된 기록 1380건을 수용했다.",
+      "limitations": [
+        "지번/도로명 주소 및 건물번호가 온전히 기재되거나 공식 상가정보(15083033)에서 유일하게 해소된 지출 기록만 수용",
+        "카페·음료·간식·상품권 등 비식사성 지출 항목 및 비음식점 상호 엄격 제외",
+        "부서명이 불분명하거나 행정지원부서 등 일반 명칭인 행은 제외"
+      ]
+    },
+    "전북": {
+      "region": "전북",
+      "status": "completed",
+      "institutions": [
+        "전북특별자치도"
+      ],
+      "period": {
+        "start": "2025-10-16",
+        "end": "2026-08-31"
+      },
+      "rawRowCount": 1485,
+      "funnel": {
+        "datedPaymentRows": 1485,
+        "mealRows": 1244,
+        "addressMatchedRows": 588,
+        "addressAmbiguousOrDistrictMismatch": 223,
+        "addressNameNotFound": 265
+      },
+      "extractedMealAddressRows": 588,
+      "acceptedRowCount": 588,
+      "candidatePlaceCount": 317,
+      "eligiblePlaceCount": 317,
+      "sourceURLs": [
+        "https://www.jeonbuk.go.kr/board/list.jeonbuk?boardId=BBS_0000029&menuCd=DOM_000000103005000000"
+      ],
+      "coverageDescription": "전북 지역 공공기관 1곳의 공식 업무추진비 공개자료에서 추출된 결제 내역 588건 중 검증된 기록 588건을 수용했다.",
+      "limitations": [
+        "지번/도로명 주소 및 건물번호가 온전히 기재되거나 공식 상가정보(15083033)에서 유일하게 해소된 지출 기록만 수용",
+        "카페·음료·간식·상품권 등 비식사성 지출 항목 및 비음식점 상호 엄격 제외",
+        "부서명이 불분명하거나 행정지원부서 등 일반 명칭인 행은 제외"
+      ]
+    },
+    "전남": {
+      "region": "전남",
+      "status": "completed",
+      "institutions": [
+        "전라남도"
+      ],
+      "period": {
+        "start": "2025-07-09",
+        "end": "2026-07-30"
+      },
+      "rawRowCount": 655,
+      "funnel": {
+        "datedPaymentRows": 655,
+        "mealRows": 521,
+        "addressNameNotFound": 166,
+        "addressMatchedRows": 214,
+        "addressAmbiguousOrDistrictMismatch": 74
+      },
+      "extractedMealAddressRows": 214,
+      "acceptedRowCount": 201,
+      "candidatePlaceCount": 137,
+      "eligiblePlaceCount": 137,
+      "sourceURLs": [
+        "https://www.jeonnam.go.kr/M486735/boardList.do?menuId=jeonnam0302050300&boardId=M486735"
+      ],
+      "coverageDescription": "전남 지역 공공기관 1곳의 공식 업무추진비 공개자료에서 추출된 결제 내역 214건 중 검증된 기록 201건을 수용했다.",
+      "limitations": [
+        "지번/도로명 주소 및 건물번호가 온전히 기재되거나 공식 상가정보(15083033)에서 유일하게 해소된 지출 기록만 수용",
+        "카페·음료·간식·상품권 등 비식사성 지출 항목 및 비음식점 상호 엄격 제외",
+        "부서명이 불분명하거나 행정지원부서 등 일반 명칭인 행은 제외"
+      ]
+    },
+    "제주": {
+      "region": "제주",
+      "status": "completed",
+      "institutions": [
+        "제주특별자치도"
+      ],
+      "period": {
+        "start": "2025-03-19",
+        "end": "2026-08-31"
+      },
+      "rawRowCount": 2750,
+      "funnel": {
+        "datedPaymentRows": 2750,
+        "mealRows": 2075,
+        "addressMatchedRows": 1154,
+        "addressNameNotFound": 505,
+        "addressAmbiguousOrDistrictMismatch": 97
+      },
+      "extractedMealAddressRows": 1154,
+      "acceptedRowCount": 1147,
+      "candidatePlaceCount": 553,
+      "eligiblePlaceCount": 553,
+      "sourceURLs": [
+        "https://www.jeju.go.kr/open/open/work/work2.htm?category=1409",
+        "https://www.jeju.go.kr/open/open/work/work3.htm?category=1002"
+      ],
+      "coverageDescription": "제주 지역 공공기관 1곳의 공식 업무추진비 공개자료에서 추출된 결제 내역 1154건 중 검증된 기록 1147건을 수용했다.",
+      "limitations": [
+        "지번/도로명 주소 및 건물번호가 온전히 기재되거나 공식 상가정보(15083033)에서 유일하게 해소된 지출 기록만 수용",
+        "카페·음료·간식·상품권 등 비식사성 지출 항목 및 비음식점 상호 엄격 제외",
+        "부서명이 불분명하거나 행정지원부서 등 일반 명칭인 행은 제외"
+      ]
+    }
+  },
+  "rejectedStats": {
+    "오래된날짜": 1663
+  },
+  "errors": []
+}

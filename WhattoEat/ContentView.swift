@@ -718,14 +718,19 @@ struct ContentView: View {
             let response = try await APIClient.fetchRestaurants(latitude: latitude,
                                                                 longitude: longitude)
             guard token == loadToken else { return }
-            let eligible = response.restaurants.filter { $0.isOpenNow != false }
+            var seenIDs = Set<String>()
+            let eligible = response.restaurants.filter {
+                $0.isOpenNow != false && seenIDs.insert($0.id).inserted
+            }
             if eligible.isEmpty {
                 phase = .empty
             } else {
                 let pool = Array(eligible.sorted {
                     ($0.distanceMeters ?? .max) < ($1.distanceMeters ?? .max)
                 }.prefix(13))
-                let selected = pool.shuffled()
+                // 공공기관 이용 기록이 확인된 곳은 거리순으로 앞에, 나머지는 기존 무작위 순서.
+                // 사진 재조회는 이 순서를 유지한 채 항목만 바꾸므로 순서가 되돌아가지 않는다.
+                let selected = PublicDiningPriority.prioritized(pool.shuffled())
                 phase = .results(selected)
                 if selected.contains(where: { $0.photoURL == nil }) {
                     Task {
@@ -1392,6 +1397,129 @@ private struct PhotoInformationSheet: View {
     }
 }
 
+/// 공공기관 이용 기록이 확인된 식당에만 붙는 작은 표시. 맛·안전·현재 영업 여부를 주장하지 않는다.
+private struct PublicDiningBadge: View {
+    var compact = false
+
+    var body: some View {
+        HStack(spacing: 3) {
+            Image(systemName: "building.columns.fill")
+            Text("공공기관 이용 기록")
+        }
+        .font(.system(size: compact ? 9 : 10, weight: .semibold))
+        .foregroundStyle(Color.mintInk)
+        .lineLimit(1)
+        .padding(.horizontal, compact ? 6 : 8)
+        .padding(.vertical, compact ? 3 : 4)
+        .background(Capsule().fill(Color.selectionMint))
+        .overlay(Capsule().stroke(Color.mintInk.opacity(0.25), lineWidth: 0.75))
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("공공기관 이용 기록이 있는 식당")
+    }
+}
+
+/// 결정 화면에서 여는 기록 상세. 사진 정보 시트와 같은 구성으로 출처·기간·부서 수·수집 범위를 보여 준다.
+private struct PublicDiningRecordSheet: View {
+    @Environment(\.dismiss) private var dismiss
+    let restaurantName: String
+    let match: PublicDiningMatch
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 18) {
+                HStack {
+                    ReferenceIconWell(systemName: "building.columns.fill", color: .accentRed, diameter: 38)
+                    Text("공공기관 이용 기록")
+                        .font(.title3.bold())
+                        .foregroundStyle(Color.charcoalText)
+                    Spacer()
+                    Button("닫기") { dismiss() }
+                        .foregroundStyle(Color.charcoalText)
+                }
+
+                Text("공공기관의 식사 이용 기록을 식당 이름·주소와 연결했어요. 일부 누락 주소는 공식 사업장 자료로 보완했어요. 맛이나 안전, 현재 영업 여부를 뜻하지는 않아요.")
+                    .font(.subheadline)
+                    .foregroundStyle(Color.charcoalSoft)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                VStack(alignment: .leading, spacing: 8) {
+                    informationRow("식당", restaurantName)
+                    if let region = match.region, !region.isEmpty {
+                        informationRow("지역", region)
+                    }
+                    informationRow("기록 주소", match.record.address)
+                    if match.record.departmentCount > 0 {
+                        informationRow("이용 부서", "\(match.record.departmentCount)곳")
+                    }
+                    if let day = PublicDiningPriority.displayDay(match.lastPaymentDate) {
+                        informationRow("최근 결제", day)
+                    }
+                    informationRow("수집 범위", match.coverageDescription)
+                    if let generated = PublicDiningPriority.displayDay(match.generatedDate) {
+                        informationRow("집계일", generated)
+                    }
+                }
+
+                VStack(alignment: .leading, spacing: 8) {
+                    if let sourceURL = match.sourceURL {
+                        recordLink("공식 원문 보기", sourceURL)
+                    }
+                    let displayedSources = match.displayedOfficialSourceURLs
+                    ForEach(Array(displayedSources.enumerated()), id: \.offset) { index, url in
+                        recordLink(displayedSources.count == 1 ? "자료 출처" : "자료 출처 \(index + 1)", url)
+                    }
+                }
+
+                Text("표시 기준: 공공기관 식사 이용 1건 이상, 최근 \(PublicDiningPriority.maximumRecordAgeMonths)개월 안의 결제 기록. 방문 전 영업 여부는 지도에서 확인해 주세요.")
+                    .font(.caption)
+                    .foregroundStyle(Color.charcoalSoft)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .padding(24)
+        }
+        .background(Color.mintBase.ignoresSafeArea())
+        .preferredColorScheme(.light)
+    }
+
+    private func informationRow(_ label: String, _ value: String) -> some View {
+        HStack(alignment: .top, spacing: 10) {
+            Text(label)
+                .font(.caption.bold())
+                .foregroundStyle(Color.accentRed)
+                .frame(width: 58, alignment: .leading)
+            Text(value)
+                .font(.subheadline)
+                .foregroundStyle(Color.charcoalText)
+                .textSelection(.enabled)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+
+    private func recordLink(_ title: String, _ url: URL) -> some View {
+        Link(destination: url) {
+            HStack(spacing: 6) {
+                Text(title)
+                    .font(.caption.bold())
+                    .foregroundStyle(Color.charcoalText)
+                    .lineLimit(1)
+                Image(systemName: "arrow.up.right")
+                    .font(.caption2.bold())
+                    .foregroundStyle(Color.charcoalSoft)
+                Spacer(minLength: 0)
+                Text(url.host ?? "")
+                    .font(.caption2)
+                    .foregroundStyle(Color.charcoalSoft)
+                    .lineLimit(1)
+                    .truncationMode(.middle)
+            }
+            .padding(.horizontal, 12)
+            .frame(minHeight: 38)
+            .background(Capsule().fill(Color.ivory))
+            .overlay(Capsule().stroke(Color.canvasLine, lineWidth: 1))
+        }
+    }
+}
+
 private struct LeatherHeroCard: View {
     let action: () -> Void
 
@@ -2009,6 +2137,9 @@ private struct ReferenceRestaurantResults: View {
                         }
                             .font(.subheadline).foregroundStyle(Color.charcoalSoft).lineLimit(1)
                     }
+                    if PublicDiningPriority.match(for: decision.restaurant) != nil {
+                        PublicDiningBadge()
+                    }
                     Text("가까워서 더 반가운 한 끼").font(.caption).foregroundStyle(Color.charcoalSoft).lineLimit(2)
                     Spacer(minLength: 12)
                     HStack(spacing: 6) {
@@ -2096,6 +2227,9 @@ private struct ReferenceRestaurantResults: View {
                             .font(.system(size: 10))
                             .foregroundStyle(Color.charcoalSoft)
                             .lineLimit(1)
+                    }
+                    if PublicDiningPriority.match(for: decision.restaurant) != nil {
+                        PublicDiningBadge(compact: true)
                     }
                 }
                 .padding(.horizontal, 9)
@@ -2507,6 +2641,7 @@ struct DecisionView: View {
     let onClose: () -> Void
     @State private var recorded = false
     @State private var showInformation = false
+    @State private var showPublicDiningRecord = false
     @State private var missingMapProvider: MapProvider?
     @State private var showMissingMapActions = false
     @State private var showMapProviderPicker = false
@@ -2528,6 +2663,10 @@ struct DecisionView: View {
     }
     private var categoryLabel: String {
         decision.restaurant.category.components(separatedBy: " > ").last ?? decision.restaurant.category
+    }
+    /// 이름·주소가 일치하는 공공기관 이용 기록. 없으면 관련 UI를 전혀 그리지 않는다.
+    private var publicDiningMatch: PublicDiningMatch? {
+        PublicDiningPriority.match(for: decision.restaurant)
     }
 
     var body: some View {
@@ -2617,6 +2756,39 @@ struct DecisionView: View {
                     .buttonStyle(.plain)
                     .accessibilityLabel("\(decision.restaurant.name) \(phone)에 전화걸기")
                     .accessibilityHint("영업 여부를 확인하기 위해 전화 앱을 열어요")
+                }
+
+                if let match = publicDiningMatch {
+                    Button { showPublicDiningRecord = true } label: {
+                        HStack(spacing: 10) {
+                            ReferenceIconWell(systemName: "building.columns.fill", color: .accentRed, diameter: 34)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("공공기관 이용 기록")
+                                    .font(.subheadline.weight(.semibold))
+                                    .foregroundStyle(Color.charcoalText)
+                                    .lineLimit(1)
+                                Text("최근 결제 \(PublicDiningPriority.displayDay(match.lastPaymentDate) ?? match.record.lastPaymentDate)")
+                                    .font(.caption)
+                                    .foregroundStyle(Color.charcoalSoft)
+                                    .lineLimit(1)
+                            }
+                            Spacer(minLength: 8)
+                            Text("출처 보기")
+                                .font(.caption.bold())
+                                .foregroundStyle(Color.mintInk)
+                                .lineLimit(1)
+                            Image(systemName: "chevron.right")
+                                .font(.caption.bold())
+                                .foregroundStyle(Color.charcoalSoft)
+                        }
+                        .padding(.horizontal, 14)
+                        .frame(height: 58)
+                        .background(Color.ivory)
+                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                        .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.canvasLine, lineWidth: 1))
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityHint("공식 출처, 기간, 부서 수와 수집 범위를 확인해요")
                 }
 
                 Button(action: openMap) {
@@ -2774,6 +2946,12 @@ struct DecisionView: View {
             Button("확인", role: .cancel) {}
         } message: {
             Text(AppText.dataDisclaimer)
+        }
+        .sheet(isPresented: $showPublicDiningRecord) {
+            if let match = publicDiningMatch {
+                PublicDiningRecordSheet(restaurantName: decision.restaurant.name, match: match)
+                    .presentationDetents([.medium, .large])
+            }
         }
         .confirmationDialog(
             "\(missingMapProvider?.displayName ?? "지도 앱")가 필요해요",

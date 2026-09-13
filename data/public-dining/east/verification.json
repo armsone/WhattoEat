@@ -1,0 +1,11 @@
+{
+  "total": 3426,
+  "verified": 3426,
+  "formats": {
+    "spreadsheet_or_document_table_rows": 2820,
+    "html_rows": 606
+  },
+  "issues": [],
+  "addressEvidenceRows": 1743,
+  "addressOriginalMismatches": 0
+}

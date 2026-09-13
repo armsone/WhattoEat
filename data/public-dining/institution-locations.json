@@ -1,0 +1,116 @@
+[
+  {
+    "institution": "대구광역시",
+    "region": "대구",
+    "sourceURL": "https://www.daegu.go.kr/",
+    "address": "대구광역시 중구 공평로 88"
+  },
+  {
+    "institution": "대구광역시",
+    "region": "대구",
+    "sourceURL": "https://www.daegu.go.kr/",
+    "address": "대구광역시 북구 연암로 40"
+  },
+  {
+    "institution": "울산광역시",
+    "region": "울산",
+    "sourceURL": "https://www.ulsan.go.kr/u/rep/transfer/chief/list.ulsan?mId=001003002005000000&useDe=2026-08-06",
+    "address": "울산광역시 남구 중앙로 201"
+  },
+  {
+    "institution": "경상북도의회",
+    "region": "경북",
+    "sourceURL": "https://council.gb.go.kr/",
+    "address": "경상북도 안동시 풍천면 도청대로 455"
+  },
+  {
+    "institution": "강원특별자치도",
+    "region": "강원",
+    "sourceURL": "https://state.gwd.go.kr/portal/administration/opendata/propulsionCost/director?articleSeq=271907&mode=view",
+    "address": "강원특별자치도 춘천시 중앙로 1"
+  },
+  {
+    "institution": "세종특별자치시",
+    "region": "세종",
+    "sourceURL": "https://www.sejong.go.kr/bbs/R0091/view.do?nttId=B000000154062Yz3qH9j&mno=sub01_0301",
+    "address": "세종특별자치시 한누리대로 2130"
+  },
+  {
+    "institution": "대전광역시",
+    "region": "대전",
+    "sourceURL": "https://www.daejeon.go.kr/drh/open/drhDataOpen/drhDataOpenBoardArticleView.do?boardSeq=694&articleSeq=14818",
+    "address": "대전광역시 서구 둔산로 100"
+  },
+  {
+    "institution": "충청북도",
+    "region": "충북",
+    "sourceURL": "https://www.chungbuk.go.kr/www/selectBbsNttView.do?key=211&bbsNo=2&nttNo=441295",
+    "address": "충청북도 청주시 상당구 상당로 82"
+  },
+  {
+    "institution": "인천광역시",
+    "region": "인천",
+    "sourceURL": "https://www.incheon.go.kr/open/OPEN010305/3087241",
+    "address": "인천광역시 남동구 정각로 29"
+  },
+  {
+    "institution": "제주특별자치도",
+    "region": "제주",
+    "sourceURL": "https://www.jeju.go.kr/open/open/work/work2.htm?category=1409&act=view&seq=2033845",
+    "address": "제주특별자치도 제주시 문연로 6"
+  },
+  {
+    "institution": "전북특별자치도",
+    "region": "전북",
+    "sourceURL": "https://www.jeonbuk.go.kr/board/view.jeonbuk?boardId=BBS_0000029&menuCd=DOM_000000103005000000&dataSid=670212",
+    "address": "전북특별자치도 전주시 완산구 효자로 225"
+  },
+  {
+    "institution": "전라남도",
+    "region": "전남",
+    "sourceURL": "https://www.jeonnam.go.kr/M486735/boardView.do?seq=1944933&menuId=jeonnam0302050300&boardId=M486735",
+    "address": "전남광주통합특별시 무안군 삼향읍 오룡길 1"
+  },
+  {
+    "institution": "광주광역시 서구",
+    "region": "광주",
+    "sourceURL": "https://www.seogu.gwangju.kr/menu.es?mid=a10518030100&nPage=1",
+    "address": "전남광주통합특별시 서구 경열로 33"
+  },
+  {
+    "institution": "경기도",
+    "region": "경기",
+    "address": "경기도 수원시 영통구 도청로 30",
+    "sourceURL": "https://www.gg.go.kr/contents/contents.do?ciIdx=1377&menuId=3187"
+  },
+  {
+    "institution": "경기도",
+    "region": "경기",
+    "address": "경기도 의정부시 청사로 1",
+    "sourceURL": "https://www.gg.go.kr/contents/contents.do?ciIdx=1377&menuId=3187"
+  },
+  {
+    "institution": "충청남도",
+    "region": "충남",
+    "address": "충청남도 홍성군 홍북읍 충남대로 21",
+    "sourceURL": "https://tour.chungnam.go.kr/thumbnail/BBSMSTR_000000000197/BBS_202507210303440611.PDF"
+  },
+  {
+    "institution": "경상남도",
+    "region": "경남",
+    "address": "경상남도 창원시 의창구 중앙대로 300",
+    "sourceURL": "https://www.gyeongnam.go.kr/"
+  },
+  {
+    "institution": "부산광역시",
+    "region": "부산",
+    "address": "부산광역시 연제구 중앙대로 1001",
+    "sourceURL": "https://www.busan.go.kr/bhbusanjingu"
+  },
+  {
+    "institution": "서울특별시",
+    "region": "서울",
+    "address": "서울특별시 중구 세종대로 110",
+    "sourceURL": "https://www.seoul.go.kr/seoul/map.do"
+  }
+]

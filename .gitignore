@@ -18,3 +18,7 @@ build/
 .codex-derived/
 .codex-release/
 tmp/
+
+# Python collector cache
+__pycache__/
+*.pyc
