@@ -195,6 +195,7 @@ private enum MatchupLaunch {
 #endif
 
 struct ContentView: View {
+    @ObservedObject private var notificationRoute = LunchNotificationRoute.shared
     @StateObject private var locationManager = LocationManager()
     @StateObject private var store = ChoiceStore()
     @State private var phase: Phase = .idle
@@ -378,6 +379,12 @@ struct ContentView: View {
             applyMatchupFixtureIfNeeded()
 #endif
         }
+        .task {
+            consumeLunchNotification()
+        }
+        .onChange(of: notificationRoute.recommendationPending) { _, pending in
+            if pending { consumeLunchNotification() }
+        }
         .onChange(of: locationManager.authorization) { _, newValue in
             guard mode == .auto, page == .result || page == .region else { return }
             handleAuthorization(newValue)
@@ -430,6 +437,7 @@ struct ContentView: View {
 #endif
             guard newValue == .active else { return }
             refreshLunchReminder()
+            if consumeLunchNotification() { return }
             guard page == .result else { return }
             switch phase {
             case .results, .empty: retry()
@@ -491,6 +499,15 @@ struct ContentView: View {
             page = .result
             retry()
         }
+    }
+
+    /// 앱 시작 전이나 백그라운드에서 받은 알림 탭을 화면이 활성화되면 한 번만 처리한다.
+    @discardableResult
+    private func consumeLunchNotification() -> Bool {
+        guard scenePhase == .active, notificationRoute.recommendationPending else { return false }
+        notificationRoute.recommendationPending = false
+        showRecommendations()
+        return true
     }
 
     private func openSettings() {
